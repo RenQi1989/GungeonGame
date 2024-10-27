@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Rendering;
@@ -7,21 +8,46 @@ public class Player : MonoBehaviour
 {
     public PlayerBullet PlayerBulletPrefab;
     public Rigidbody2D playerRb;
-    public float speed = 2.0f;
+    public float speed = 2.5f;
+    public SpriteRenderer playerSprite;
+    public static int HP = 3;
+    public static Action HPChangeEvent;
 
     void Start()
     {
 
     }
 
+    // 主角受伤
+    public void PlayerHurt(int damage)
+    {
+        HP -= damage;
+        HPChangeEvent();
+
+        if (HP <= 0)
+        {
+            HP = 0;
+            GameUI.gameUI.gameOver.SetActive(true);
+            Time.timeScale = 0;
+        }
+    }
+
     void Update()
     {
         // 主角移动
-        var horizontal = Input.GetAxis("Horizontal");
-        var vertical = Input.GetAxis("Vertical");
+        var horizontal = Input.GetAxisRaw("Horizontal"); // horizontal大于0是向右走，小于0是向左走
+        var vertical = Input.GetAxisRaw("Vertical"); // vertical大于0是向上走，小于0是向下走
+        playerRb.velocity = new Vector2(horizontal, vertical).normalized * speed; // normalized 斜着移动的速度也为 1
 
-        playerRb.velocity = new Vector2(horizontal, vertical).normalized * speed;
-
+        // 主角翻转
+        if (horizontal < 0)
+        {
+            playerSprite.flipX = true; // 水平镜像翻转(所以不使用 flipY)
+        }
+        else if (horizontal > 0)
+        {
+            playerSprite.flipX = false;
+        }
 
         // 主角射击
         if (Input.GetMouseButtonDown(0))

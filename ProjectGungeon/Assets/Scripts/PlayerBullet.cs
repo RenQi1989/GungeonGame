@@ -18,12 +18,13 @@ public class PlayerBullet : MonoBehaviour
         this.transform.Translate(direction * Time.deltaTime * speed);
     }
 
-    // 碰撞检测
+    // 碰撞检测（主角子弹碰撞到敌人）
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.GetComponent<Enemy>()) // 使用挂载的脚本是不是Enemy判断
         {
             other.gameObject.SetActive(false); // Enemy失活
+            Destroy(gameObject); // 销毁主角子弹
         }
     }
 }

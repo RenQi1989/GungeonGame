@@ -11,6 +11,7 @@ public class GameUI : MonoBehaviour
     public static GameUI gameUI;
     public GameObject gamePass;
     public GameObject gameOver;
+    public Text HP;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public class GameUI : MonoBehaviour
     private void OnDestroy()
     {
         gameUI = null;
+        Player.HPChangeEvent -= UpdateHP; // 取消订阅血量更新方法
     }
 
     void Start()
@@ -28,22 +30,33 @@ public class GameUI : MonoBehaviour
         gamePass.transform.Find("BtnRestart").GetComponent<Button>()
             .onClick.AddListener(() =>
             {
+                Global.RestartData(); // 调用重启游戏的数据
                 SceneManager.LoadScene("SampleScene");
-                Time.timeScale = 1; // 时间继续流逝
             }
             );
 
         gameOver.transform.Find("BtnRestart").GetComponent<Button>()
             .onClick.AddListener(() =>
             {
+                Global.RestartData();
                 SceneManager.LoadScene("SampleScene");
-                Time.timeScale = 1; // 时间继续流逝
             }
             );
+
+        // 血量更新
+        UpdateHP();
+        Player.HPChangeEvent += UpdateHP; // 订阅血量更新方法
+
     }
 
+    // 血量更新
+    public void UpdateHP()
+    {
+        HP.text = "HP:" + Player.HP;
+    }
     void Update()
     {
+
 
     }
 }
