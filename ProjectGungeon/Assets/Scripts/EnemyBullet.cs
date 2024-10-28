@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class EnemyBullet : MonoBehaviour
 {
-
     public Vector2 direction;
     void Start()
     {
@@ -23,6 +22,10 @@ public class EnemyBullet : MonoBehaviour
         {
             other.gameObject.GetComponent<Player>().PlayerHurt(1); // 调用 Player 类的 PlayerHurt 方法
             Destroy(gameObject); // 销毁敌人子弹
+        }
+        else // 碰到其他东西(比如墙体)，销毁敌人子弹
+        {
+            Destroy(gameObject);
         }
     }
 }

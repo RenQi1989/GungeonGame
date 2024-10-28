@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +9,75 @@ using UnityEngine.Tilemaps;
 
 public class LevelController : MonoBehaviour
 {
-    public TileBase groundTile;
-    public Tilemap groundTileMap;
+    [Header("Tile Settings")]
+    public TileBase groundTile; // 管理具体地块
+    public Tilemap wallTileMap; // 管理墙壁地图
+    public Tilemap floorTileMap; // 管理地板地图
+    public TileBase wall0;
+    public TileBase wall1;
+    public TileBase wall2;
+    public TileBase wall3;
+    public TileBase floor0;
+    public TileBase floor1;
+    public TileBase floor2;
+    public TileBase floor3;
+
+    [Header("Character Settings")]
     public Player playerPrefab;
     public Enemy enemyPrefab;
     public FinalDoor finalDoorPrefab;
+
+    // 随机铺墙壁
+    public TileBase Wall
+    {
+        get
+        {
+            var wallIndex = UnityEngine.Random.Range(0, 3 + 1);
+            if (wallIndex == 0)
+            {
+                return wall0;
+            }
+            if (wallIndex == 1)
+            {
+                return wall1;
+            }
+            if (wallIndex == 2)
+            {
+                return wall2;
+            }
+            if (wallIndex == 3)
+            {
+                return wall3;
+            }
+            return wall0;
+        }
+    }
+
+    // 随机铺地板
+    public TileBase Floor
+    {
+        get
+        {
+            var floorIndex = UnityEngine.Random.Range(0, 3 + 1);
+            if (floorIndex == 0)
+            {
+                return floor0;
+            }
+            if (floorIndex == 1)
+            {
+                return floor1;
+            }
+            if (floorIndex == 2)
+            {
+                return floor2;
+            }
+            if (floorIndex == 3)
+            {
+                return floor3;
+            }
+            return floor0;
+        }
+    }
 
     // 字符串房间列表
     /*
@@ -102,9 +167,12 @@ public class LevelController : MonoBehaviour
                 var x = startRoomPosX + j;
                 var y = roomCode.Count - i;
 
-                if (code == '1') // 绘制地块
+                // 根据房间的字符串布局，绘制对应 tile                   
+                floorTileMap.SetTile(new Vector3Int(x, y, 0), Floor); // 绘制地板（所有格子都要绘制地板）
+
+                if (code == '1') // 绘制墙壁
                 {
-                    groundTileMap.SetTile(new Vector3Int(x, y, 0), groundTile);
+                    wallTileMap.SetTile(new Vector3Int(x, y, 0), Wall);
                 }
                 else if (code == '@') // 绘制主角
                 {

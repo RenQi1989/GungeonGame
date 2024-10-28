@@ -6,6 +6,8 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     public EnemyBullet enemyBulletPrefab;
+    public SpriteRenderer enemySprite;
+
     public enum States
     {
         FollowPlayer,
@@ -27,6 +29,7 @@ public class Enemy : MonoBehaviour
         // 敌人状态判断
         if (state == States.FollowPlayer)
         {
+            Debug.Log("进入追踪状态");
             CurrentSeconds += Time.deltaTime; // 开始计时
 
             // 当怪物跟随玩家超过 3 秒，进入射击状态，计时清零
@@ -42,10 +45,20 @@ public class Enemy : MonoBehaviour
                 var directionToPlayer = (CameraController.player.transform.position - this.transform.position).normalized;
                 // 让怪物每一帧朝向玩家移动
                 this.transform.Translate(directionToPlayer * Time.deltaTime);
+
+                if (directionToPlayer.x > 0)
+                {
+                    enemySprite.flipX = false;
+                }
+                else if (directionToPlayer.x < 0)
+                {
+                    enemySprite.flipX = true;
+                }
             }
         }
         else if (state == States.Shoot)
         {
+            Debug.Log("进入射击状态");
             // 开始计时
             CurrentSeconds += Time.deltaTime;
 
