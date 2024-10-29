@@ -1,13 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    [Header("Enemy Settings")]
     public EnemyBullet enemyBulletPrefab;
     public SpriteRenderer enemySprite;
+    public Rigidbody2D enemyRb;
+    public float speed = 1.0f;
 
+    [Header("Audio Settings")]
+    public List<AudioClip> shootSounds = new List<AudioClip>();
+    public AudioSource shootSoundPlayer;
+
+    // 敌人状态枚举
     public enum States
     {
         FollowPlayer,
@@ -32,7 +41,7 @@ public class Enemy : MonoBehaviour
             Debug.Log("进入追踪状态");
             CurrentSeconds += Time.deltaTime; // 开始计时
 
-            // 当怪物跟随玩家超过 3 秒，进入射击状态，计时清零
+            // 当敌人跟随玩家超过 3 秒，进入射击状态，计时清零
             if (CurrentSeconds >= FollowPlayerSeconds)
             {
                 state = States.Shoot;
@@ -41,11 +50,12 @@ public class Enemy : MonoBehaviour
 
             if (CameraController.player) // 如果 player 对象存在就跟随
             {
-                // 获取怪物到玩家的方向向量
+                // 获取敌人到玩家的方向向量
                 var directionToPlayer = (CameraController.player.transform.position - this.transform.position).normalized;
-                // 让怪物每一帧朝向玩家移动
-                this.transform.Translate(directionToPlayer * Time.deltaTime);
+                // 敌人移动
+                enemyRb.velocity = directionToPlayer * speed;
 
+                // 敌人翻转
                 if (directionToPlayer.x > 0)
                 {
                     enemySprite.flipX = false;
@@ -59,6 +69,7 @@ public class Enemy : MonoBehaviour
         else if (state == States.Shoot)
         {
             Debug.Log("进入射击状态");
+
             // 开始计时
             CurrentSeconds += Time.deltaTime;
 
@@ -70,8 +81,8 @@ public class Enemy : MonoBehaviour
                 CurrentSeconds = 0;
             }
 
-            // 每秒最多发射 3 颗子弹
-            if (Time.frameCount % 20 == 0)
+            // 射击逻辑
+            if (Time.frameCount % 20 == 0) // 每秒最多发射 3 颗子弹
             {
                 if (CameraController.player) // 如果 player 对象存在就射击
                 {
@@ -81,6 +92,11 @@ public class Enemy : MonoBehaviour
                     enemyBullet.direction = directionToPlayer; // 敌人的子弹朝向玩家
                     enemyBullet.transform.position = this.transform.position; // 子弹位置就是敌人位置
                     enemyBullet.gameObject.SetActive(true); // 把在Inspector失活的子弹重新激活
+
+                    // 播放随机射击音效
+                    var soundsIndex = Random.Range(0, shootSounds.Count);
+                    shootSoundPlayer.clip = shootSounds[soundsIndex];
+                    shootSoundPlayer.Play();
                 }
             }
         }

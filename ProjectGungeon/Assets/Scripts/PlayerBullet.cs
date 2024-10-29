@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerBullet : MonoBehaviour
 {
     public Vector2 direction;
-    public float speed = 5.0f;
+    public float speed = 15.0f;
 
     void Start()
     {
