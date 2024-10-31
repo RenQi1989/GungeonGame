@@ -12,7 +12,6 @@ namespace QFramework.ProjectGungeon
         public abstract AudioSource audioPlayer { get; } // 音效播放器
         public List<AudioClip> shootSounds = new List<AudioClip>(); // 主角射击音效列表
 
-
         // 点击鼠标
         public virtual void ShootMouseDown(Vector2 shootDirection)
         {
@@ -27,7 +26,6 @@ namespace QFramework.ProjectGungeon
             var soundsIndex = Random.Range(0, shootSounds.Count);
             audioPlayer.clip = shootSounds[soundsIndex];
             audioPlayer.Play();
-
         }
 
         // 按住鼠标

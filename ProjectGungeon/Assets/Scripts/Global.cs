@@ -1,3 +1,4 @@
+using QFramework.ProjectGungeon;
 using UnityEngine;
 
 public class Global

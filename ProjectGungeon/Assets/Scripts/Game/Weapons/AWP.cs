@@ -9,18 +9,27 @@ namespace QFramework.ProjectGungeon
 	{
 		public override PlayerBullet bulletPrefab => PlayerBullet; // 主角子弹模板
 		public override AudioSource audioPlayer => SelfAudioSource; // 音效播放器
-		private float shootCoolDown = 2f; // 开枪冷却时间
-		private float coolDownTimer = 0f; // 计时器
+		private ShootDuration shootDuration;
+		private GunClip gunClip;
 
+		private void Start()
+		{
+			shootDuration = new ShootDuration(shootDuration: 1.5f, chargeTime: 0f);
+			gunClip = new GunClip(bulletCapacity: 20, currentBulletCapacity: 20);
+
+			gunClip.UpdateUI();
+		}
 		private void Update()
 		{
-			if (coolDownTimer > 0)
+			if (shootDuration.Duration > 0)
 			{
-				coolDownTimer -= Time.deltaTime; // 每帧减少冷却时间
+				shootDuration.Duration -= Time.deltaTime; // 每帧减少冷却时间
 			}
+
+			gunClip.BulletReload(); // 换弹夹
 		}
 
-		// AWP的射击方式：鼠标按下后发射一颗强力子弹，有较长冷却时间
+		// AWP的射击方式：鼠标按下后发射一颗强力子弹，冷却时间较长
 		// 射击逻辑
 		public void Shoot(Vector2 shootDirection)
 		{
@@ -34,14 +43,17 @@ namespace QFramework.ProjectGungeon
 			// 播放射击音效																				 
 			audioPlayer.clip = shootSounds[0];
 			audioPlayer.Play();
+
+			// 子弹消耗
+			gunClip.UseBullet();
 		}
 
 		public override void ShootMouseDown(Vector2 shootDirection)
 		{
-			if (coolDownTimer <= 0) // 冷却时间到，可以开枪
+			if (shootDuration.CanShoot && gunClip.CanShoot)
 			{
 				Shoot(shootDirection);
-				coolDownTimer = shootCoolDown; // 重置冷却计时器
+				shootDuration.Duration = 2f; // 重置冷却时间
 			}
 		}
 	}

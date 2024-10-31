@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using QFramework.ProjectGungeon;
 using Unity.PlasticSCM.Editor.WebApi;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -93,44 +94,66 @@ public class LevelController : MonoBehaviour
     // 序列化 = public = 在 Unity 里直接显示
     public List<string> initRoom { get; set; } = new List<string>()
     {
-        "1111111111",
-        "1        1",
-        "1        1",
-        "1        1",
-        "1  @      ",
-        "1         ",
-        "1        1",
-        "1        1",
-        "1        1",
-        "1111111111",
+        "111111111111111111",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1            1   1",
+        "1             1  1",
+        "1   11            ",
+        "1  @ 1            ",
+        "1                 ",
+        "1        1        ",
+        "1       1        1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "111111111111111111",
     };
 
     public List<string> NormalRoom { get; set; } = new List<string>()
     {
-        "1111111111",
-        "1        1",
-        "1        1",
-        "1        1",
-        "   e      ",
-        "          ",
-        "1        1",
-        "1      e 1",
-        "1        1",
-        "1111111111",
+        "111111111111111111",
+        "1                1",
+        "1        e       1",
+        "1       e1e      1",
+        "1        e       1",
+        "1                1",
+        "1                1",
+        "       1          ",
+        "        ee1       ",
+        "        ee1       ",
+        "       1          ",
+        "1                1",
+        "1                1",
+        "1        e       1",
+        "1       e1e      1",
+        "1        e       1",
+        "1                1",
+        "111111111111111111",
     };
 
     public List<string> FinalRoom { get; set; } = new List<string>()
     {
-        "1111111111",
-        "1        1",
-        "1        1",
-        "1        1",
-        "     #   1",
-        "         1",
-        "1        1",
-        "1        1",
-        "1        1",
-        "1111111111",
+        "111111111111111111",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "                 1",
+        "            #    1",
+        "                 1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "1                1",
+        "111111111111111111",
     };
 
     private void Awake()
@@ -196,10 +219,5 @@ public class LevelController : MonoBehaviour
                 }
             }
         }
-    }
-
-    void Update()
-    {
-
     }
 }

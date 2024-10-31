@@ -1,26 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using QFramework.ProjectGungeon;
 using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class GameUI : MonoBehaviour
+public partial class GameUI : MonoBehaviour
 {
     // 做成单例，方便所有类访问 GameUI
-    public static GameUI gameUI;
+    public static GameUI Default;
     public GameObject gamePass;
     public GameObject gameOver;
     public Text HP;
+    public Text WeaponInfo;
+    public GunClip gunClip;
 
     private void Awake()
     {
-        gameUI = this;
+        Default = this;
     }
 
     private void OnDestroy()
     {
-        gameUI = null;
+        Default = null;
         Player.HPChangeEvent -= UpdateHP; // 取消订阅血量更新方法
     }
 
@@ -46,7 +49,6 @@ public class GameUI : MonoBehaviour
         // 血量更新
         UpdateHP();
         Player.HPChangeEvent += UpdateHP; // 订阅血量更新方法
-
     }
 
     // 血量更新
@@ -54,9 +56,17 @@ public class GameUI : MonoBehaviour
     {
         HP.text = "HP:" + Player.HP;
     }
-    void Update()
+
+    // 武器信息更新
+    public static void UpdateWeaponInfo(GunClip gunClip)
     {
-
-
+        if (Default != null && Default.WeaponInfo != null)
+        {
+            Default.WeaponInfo.text = $"Bullet: {gunClip.CurrentBulletCapacity}/{gunClip.BulletCapacity} (Press R to Reload)";
+        }
+        else
+        {
+            Debug.LogWarning("GameUI instance or WeaponInfo text field is not initialized.");
+        }
     }
 }

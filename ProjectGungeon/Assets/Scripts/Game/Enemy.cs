@@ -11,6 +11,7 @@ public class Enemy : MonoBehaviour
     public SpriteRenderer enemySprite;
     public Rigidbody2D enemyRb;
     public float speed = 1.0f;
+    public int HP = 3;
 
     [Header("Audio Settings")]
     public List<AudioClip> shootSounds = new List<AudioClip>();
@@ -99,6 +100,16 @@ public class Enemy : MonoBehaviour
                     shootSoundPlayer.Play();
                 }
             }
+        }
+    }
+
+    // 敌人受伤
+    public void Hurt(int damage)
+    {
+        HP -= damage;
+        if (HP <= 0)
+        {
+            Destroy(gameObject);
         }
     }
 }

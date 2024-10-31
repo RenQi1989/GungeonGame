@@ -8,7 +8,7 @@ public class FinalDoor : MonoBehaviour
     {
         if (other.gameObject.GetComponent<Player>())
         {
-            GameUI.gameUI.gamePass.SetActive(true);
+            GameUI.Default.gamePass.SetActive(true);
             Time.timeScale = 0; // 时间停止
         }
     }

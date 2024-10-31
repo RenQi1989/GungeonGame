@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Numerics;
+using QFramework;
 using QFramework.ProjectGungeon;
 using UnityEditor.Rendering;
 using UnityEngine;
@@ -16,12 +18,33 @@ public class Player : MonoBehaviour
     public static Action HPChangeEvent;
 
     [Header("Weapon Settings")]
-    public GameObject weapon;
     public GunManager currentGun;
+    public GameObject pistolPrefab;
+    public GameObject AWPPrefab;
+    public GameObject bowPrefab;
+    public GameObject MP5Prefab;
+    public GameObject rocketGunPrefab;
+    public GameObject shotGunPrefab;
+    private List<GunManager> gunList = new List<GunManager>();
 
-    void Start()
+    private void Awake()
     {
+        gunList.Add(Instantiate(pistolPrefab, transform).GetComponent<GunManager>());
+        gunList.Add(Instantiate(AWPPrefab, transform).GetComponent<GunManager>());
+        gunList.Add(Instantiate(bowPrefab, transform).GetComponent<GunManager>());
+        gunList.Add(Instantiate(MP5Prefab, transform).GetComponent<GunManager>());
+        gunList.Add(Instantiate(rocketGunPrefab, transform).GetComponent<GunManager>());
+        gunList.Add(Instantiate(shotGunPrefab, transform).GetComponent<GunManager>());
 
+        UseWeapon(0); // 默认武器
+    }
+
+    // 使用武器
+    public void UseWeapon(int index)
+    {
+        currentGun.gameObject.SetActive(false);
+        currentGun = gunList[index];
+        currentGun.gameObject.SetActive(true);
     }
 
     // 主角受伤
@@ -33,7 +56,7 @@ public class Player : MonoBehaviour
         if (HP <= 0)
         {
             HP = 0;
-            GameUI.gameUI.gameOver.SetActive(true);
+            GameUI.Default.gameOver.SetActive(true);
             Time.timeScale = 0;
         }
     }
@@ -64,16 +87,16 @@ public class Player : MonoBehaviour
         // 2. 旋转
         var radius = Mathf.Atan2(shootDirection.y, shootDirection.x); // 鼠标点击方向在 y 轴和 x 轴之间的夹角弧度
         var eulerAngle = radius * Mathf.Rad2Deg; // 把弧度转成欧拉角
-        weapon.transform.localRotation = UnityEngine.Quaternion.Euler(0, 0, eulerAngle);// 把欧拉角赋给武器的自转属性
+        currentGun.gameObject.transform.localRotation = UnityEngine.Quaternion.Euler(0, 0, eulerAngle);// 把欧拉角赋给武器的自转属性
 
         // 武器翻转
         if (shootDirection.x > 0)
         {
-            weapon.transform.localScale = new UnityEngine.Vector3(1, 1, 1);
+            currentGun.transform.localScale = new UnityEngine.Vector3(1, 1, 1);
         }
         else
         {
-            weapon.transform.localScale = new UnityEngine.Vector3(1, -1, 1);
+            currentGun.transform.localScale = new UnityEngine.Vector3(1, -1, 1);
         }
 
         // 主角射击
@@ -89,5 +112,30 @@ public class Player : MonoBehaviour
         {
             currentGun.ShootMouseUp(shootDirection);
         }
+
+        // 切换武器
+        if (Input.GetKeyDown(KeyCode.Q)) // 切换上一把
+        {
+            var index = gunList.FindIndex(gun => gun == currentGun);
+            index--;
+
+            if (index < 0)
+            {
+                index = gunList.Count - 1;
+            }
+            UseWeapon(index);
+        }
+        if (Input.GetKeyDown(KeyCode.E)) // 切换到下一把武器
+        {
+            var index = gunList.FindIndex(gun => gun == currentGun);
+            index++;
+
+            if (index > gunList.Count - 1)
+            {
+                index = 0;
+            }
+            UseWeapon(index);
+        }
+
     }
 }

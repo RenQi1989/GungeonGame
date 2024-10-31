@@ -22,12 +22,13 @@ public class PlayerBullet : MonoBehaviour
     // 碰撞检测
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.GetComponent<Enemy>()) // 使用挂载的脚本是不是Enemy判断
+        var enemy = other.gameObject.GetComponent<Enemy>(); // 使用挂载的脚本是不是Enemy判断
+        if (enemy)
         {
-            other.gameObject.SetActive(false); // Enemy失活
+            enemy.Hurt(1);
             Destroy(gameObject); // 销毁主角子弹
         }
-        else // 碰到其他东西(比如墙体)，子弹自己隐藏
+        else // 碰到其他东西(比如墙体)，销毁主角子弹
         {
             Destroy(gameObject);
         }

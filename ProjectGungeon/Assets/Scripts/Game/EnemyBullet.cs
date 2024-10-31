@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using QFramework.ProjectGungeon;
 using UnityEngine;
 
 public class EnemyBullet : MonoBehaviour

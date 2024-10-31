@@ -8,6 +8,22 @@ namespace QFramework.Project
 	{
 		public override PlayerBullet bulletPrefab => PlayerBullet; // 主角子弹模板
 		public override AudioSource audioPlayer => SelfAudioSource; // 音效播放器
+		private ShootDuration shootDuration;
+		private GunClip gunClip;
+		float chargeTime = 0; // 蓄力时间
+
+		private void Start()
+		{
+			shootDuration = new ShootDuration(shootDuration: 0.5f, chargeTime: 0.5f);
+			gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
+
+			gunClip.UpdateUI();
+		}
+
+		private void Update()
+		{
+			gunClip.BulletReload(); // 换弹夹
+		}
 
 		// Bow的射击方式：鼠标按下蓄力，鼠标松开发射，发射完毕后填一支新箭 
 		// 射击逻辑
@@ -25,30 +41,47 @@ namespace QFramework.Project
 			var soundsIndex = Random.Range(0, shootSounds.Count);
 			audioPlayer.clip = shootSounds[soundsIndex];
 			audioPlayer.Play();
+
+			// 子弹消耗
+			gunClip.UseBullet();
 		}
 
 		// 按下鼠标：搭箭
 		public override void ShootMouseDown(Vector2 shootDirection)
 		{
-			PrepareArrow.gameObject.SetActive(true); // 显示蓄力箭		
+			if (gunClip.CurrentBulletCapacity > 0) // 如果还有子弹就显示蓄力箭，没有子弹就不显示
+			{
+				PrepareArrow.gameObject.SetActive(true);
+			}
+			else
+			{
+				PrepareArrow.gameObject.SetActive(false);
+			}
 		}
-
-		float chargeTime = 0; // 蓄力时间
 
 		// 按住鼠标：蓄力
 		public override void Shooting(Vector2 shootDirection)
 		{
-			chargeTime += Time.deltaTime;
-			PrepareArrow.gameObject.SetActive(true); // 持续显示蓄力箭
+			chargeTime += Time.deltaTime; // 累积蓄力时间
+
+			if (gunClip.CurrentBulletCapacity > 0)
+			{
+				PrepareArrow.gameObject.SetActive(true);
+			}
+			else
+			{
+				PrepareArrow.gameObject.SetActive(false);
+			}
 		}
 
 		// 放开鼠标：发射
 		public override void ShootMouseUp(Vector2 shootDirection)
 		{
-			if (chargeTime > 0.5f)
+			if (gunClip.CurrentBulletCapacity > 0 && chargeTime > 0.5f)
 			{
 				PrepareArrow.gameObject.SetActive(false); // 隐藏蓄力箭
 				Shoot(shootDirection);
+				shootDuration.Duration = 0.5f;
 				chargeTime = 0f; // 重置蓄力时间
 			}
 		}
