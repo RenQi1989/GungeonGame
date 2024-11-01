@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using QFramework;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace QFramework.ProjectGungeon
@@ -10,14 +11,14 @@ namespace QFramework.ProjectGungeon
     {
         public override PlayerBullet bulletPrefab => PlayerBullet;
         public override AudioSource audioPlayer => SelfAudioSource;
-        private ShootDuration shootDuration;
-        private GunClip gunClip;
+        private ShootDuration shootDuration = new ShootDuration(shootDuration: 0.5f, chargeTime: 0f);
+        private GunClip gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
+        private ShootFire shootFire = new ShootFire();
+        public override bool IsReloading => gunClip.isReloading;
 
-        private void Start()
+        // 更新武器装备状态
+        public override void IsEquipped()
         {
-            shootDuration = new ShootDuration(shootDuration: 0.5f, chargeTime: 0f);
-            gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
-
             gunClip.UpdateUI();
         }
 
@@ -29,7 +30,7 @@ namespace QFramework.ProjectGungeon
                 shootDuration.Duration -= Time.deltaTime; // 每帧减少冷却时间
             }
 
-            gunClip.BulletReload(); // 换弹夹
+            gunClip.BulletReload(reloadSound); // 换弹夹
         }
 
         // Pistol的射击方式：鼠标按下后发射一颗普通子弹，较短冷却时间
@@ -50,11 +51,14 @@ namespace QFramework.ProjectGungeon
 
             // 子弹消耗
             gunClip.UseBullet();
+
+            // 开枪火花
+            shootFire.ShowShootFire(bulletPrefab.Position2D(), shootDirection);
         }
 
         public override void ShootMouseDown(Vector2 shootDirection)
         {
-            if (shootDuration.CanShoot && gunClip.CanShoot)
+            if (shootDuration.CanShoot && gunClip.CanShoot && !IsReloading)
             {
                 Shoot(shootDirection);
                 shootDuration.Duration = 0.25f; // 重置冷却时间

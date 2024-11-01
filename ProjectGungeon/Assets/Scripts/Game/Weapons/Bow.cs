@@ -8,21 +8,20 @@ namespace QFramework.Project
 	{
 		public override PlayerBullet bulletPrefab => PlayerBullet; // 主角子弹模板
 		public override AudioSource audioPlayer => SelfAudioSource; // 音效播放器
-		private ShootDuration shootDuration;
-		private GunClip gunClip;
+		private ShootDuration shootDuration = new ShootDuration(shootDuration: 0.5f, chargeTime: 0.5f);
+		private GunClip gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
 		float chargeTime = 0; // 蓄力时间
+		public override bool IsReloading => gunClip.isReloading;
 
-		private void Start()
+		// 更新武器装备状态
+		public override void IsEquipped()
 		{
-			shootDuration = new ShootDuration(shootDuration: 0.5f, chargeTime: 0.5f);
-			gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
-
 			gunClip.UpdateUI();
 		}
 
 		private void Update()
 		{
-			gunClip.BulletReload(); // 换弹夹
+			gunClip.BulletReload(reloadSound); // 换弹夹
 		}
 
 		// Bow的射击方式：鼠标按下蓄力，鼠标松开发射，发射完毕后填一支新箭 
@@ -77,7 +76,7 @@ namespace QFramework.Project
 		// 放开鼠标：发射
 		public override void ShootMouseUp(Vector2 shootDirection)
 		{
-			if (gunClip.CurrentBulletCapacity > 0 && chargeTime > 0.5f)
+			if (gunClip.CurrentBulletCapacity > 0 && chargeTime > 0.5f && !IsReloading)
 			{
 				PrepareArrow.gameObject.SetActive(false); // 隐藏蓄力箭
 				Shoot(shootDirection);

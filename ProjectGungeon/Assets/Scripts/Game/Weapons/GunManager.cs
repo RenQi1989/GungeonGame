@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using QFramework;
@@ -11,6 +12,9 @@ namespace QFramework.ProjectGungeon
         public abstract PlayerBullet bulletPrefab { get; } // 主角子弹模板
         public abstract AudioSource audioPlayer { get; } // 音效播放器
         public List<AudioClip> shootSounds = new List<AudioClip>(); // 主角射击音效列表
+        public AudioClip reloadSound;
+        public virtual bool IsReloading { get; }
+        public virtual void IsEquipped() { } // 判断武器装备状态
 
         // 点击鼠标
         public virtual void ShootMouseDown(Vector2 shootDirection)
@@ -23,7 +27,7 @@ namespace QFramework.ProjectGungeon
             playerBullet.gameObject.SetActive(true); // 把在Inspector失活的子弹重新激活
 
             // 播放随机射击音效
-            var soundsIndex = Random.Range(0, shootSounds.Count);
+            var soundsIndex = UnityEngine.Random.Range(0, shootSounds.Count);
             audioPlayer.clip = shootSounds[soundsIndex];
             audioPlayer.Play();
         }

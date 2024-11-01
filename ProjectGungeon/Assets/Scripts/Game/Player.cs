@@ -8,7 +8,7 @@ using QFramework.ProjectGungeon;
 using UnityEditor.Rendering;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public partial class Player : MonoBehaviour
 {
     [Header("Player Settings")]
     public Rigidbody2D playerRb;
@@ -16,19 +16,17 @@ public class Player : MonoBehaviour
     public SpriteRenderer playerSprite;
     public static int HP = 3;
     public static Action HPChangeEvent;
+    public static Player Default; // 单例
 
     [Header("Weapon Settings")]
     public GunManager currentGun;
-    public GameObject pistolPrefab;
-    public GameObject AWPPrefab;
-    public GameObject bowPrefab;
-    public GameObject MP5Prefab;
-    public GameObject rocketGunPrefab;
-    public GameObject shotGunPrefab;
     private List<GunManager> gunList = new List<GunManager>();
+    public SpriteRenderer weaponFire;
 
     private void Awake()
     {
+        Default = this; // 设置单例
+
         gunList.Add(Instantiate(pistolPrefab, transform).GetComponent<GunManager>());
         gunList.Add(Instantiate(AWPPrefab, transform).GetComponent<GunManager>());
         gunList.Add(Instantiate(bowPrefab, transform).GetComponent<GunManager>());
@@ -39,12 +37,18 @@ public class Player : MonoBehaviour
         UseWeapon(0); // 默认武器
     }
 
+    private void OnDestroy()
+    {
+        Default = null; // 销毁单例
+    }
+
     // 使用武器
     public void UseWeapon(int index)
     {
-        currentGun.gameObject.SetActive(false);
+        currentGun.gameObject.SetActive(false); // 上一把武器隐藏
         currentGun = gunList[index];
-        currentGun.gameObject.SetActive(true);
+        currentGun.gameObject.SetActive(true); // 当前武器显示
+        currentGun.IsEquipped(); // 更新武器装备状态
     }
 
     // 主角受伤
@@ -116,26 +120,31 @@ public class Player : MonoBehaviour
         // 切换武器
         if (Input.GetKeyDown(KeyCode.Q)) // 切换上一把
         {
-            var index = gunList.FindIndex(gun => gun == currentGun);
-            index--;
-
-            if (index < 0)
+            if (!currentGun.IsReloading) // 非 Reload 时间才可以切换武器
             {
-                index = gunList.Count - 1;
+                var index = gunList.FindIndex(gun => gun == currentGun);
+                index--;
+
+                if (index < 0)
+                {
+                    index = gunList.Count - 1;
+                }
+                UseWeapon(index);
             }
-            UseWeapon(index);
         }
         if (Input.GetKeyDown(KeyCode.E)) // 切换到下一把武器
         {
-            var index = gunList.FindIndex(gun => gun == currentGun);
-            index++;
-
-            if (index > gunList.Count - 1)
+            if (!currentGun.IsReloading)
             {
-                index = 0;
-            }
-            UseWeapon(index);
-        }
+                var index = gunList.FindIndex(gun => gun == currentGun);
+                index++;
 
+                if (index > gunList.Count - 1)
+                {
+                    index = 0;
+                }
+                UseWeapon(index);
+            }
+        }
     }
 }

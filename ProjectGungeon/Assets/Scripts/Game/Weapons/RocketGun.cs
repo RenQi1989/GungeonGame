@@ -7,16 +7,22 @@ namespace QFramework.ProjectGungeon
 	{
 		public override PlayerBullet bulletPrefab => PlayerBullet; // 主角子弹模板
 		public override AudioSource audioPlayer => SelfAudioSource; // 音效播放器
-		private ShootDuration shootDuration;
-		private GunClip gunClip;
+		private ShootDuration shootDuration = new ShootDuration(shootDuration: 2.0f, chargeTime: 0f);
+		private GunClip gunClip = new GunClip(bulletCapacity: 15, currentBulletCapacity: 15);
+		public override bool IsReloading => gunClip.isReloading;
 
-		private void Start()
+		// 更新武器装备状态
+		public override void IsEquipped()
 		{
-			shootDuration = new ShootDuration(shootDuration: 2.0f, chargeTime: 0f);
-			gunClip = new GunClip(bulletCapacity: 15, currentBulletCapacity: 15);
-
 			gunClip.UpdateUI();
 		}
+		//private void Start()
+		//{
+		//shootDuration = new ShootDuration(shootDuration: 2.0f, chargeTime: 0f);
+		//gunClip = new GunClip(bulletCapacity: 15, currentBulletCapacity: 15);
+
+		//gunClip.UpdateUI();
+		//}
 
 		private void Update()
 		{
@@ -25,7 +31,7 @@ namespace QFramework.ProjectGungeon
 				shootDuration.Duration -= Time.deltaTime; // 每帧减少冷却时间
 			}
 
-			gunClip.BulletReload(); // 换弹夹
+			gunClip.BulletReload(reloadSound); // 换弹夹
 		}
 
 		// RocketGun的射击方式：鼠标按下后发射一颗火箭子弹，有较长冷却时间
@@ -51,7 +57,7 @@ namespace QFramework.ProjectGungeon
 
 		public override void ShootMouseDown(Vector2 shootDirection)
 		{
-			if (shootDuration.CanShoot && gunClip.CanShoot)
+			if (shootDuration.CanShoot && gunClip.CanShoot && !IsReloading)
 			{
 				Shoot(shootDirection);
 				shootDuration.Duration = 2f; // 重置冷却时间

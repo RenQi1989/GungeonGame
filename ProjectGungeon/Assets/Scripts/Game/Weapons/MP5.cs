@@ -9,20 +9,20 @@ namespace QFramework.ProjectGungeon
 		public override PlayerBullet bulletPrefab => PlayerBullet;
 		public override AudioSource audioPlayer => SelfAudioSource;
 		private float currentSecond = 0f; // 连续射击
-		private ShootDuration shootDuration;
-		private GunClip gunClip;
+		private ShootDuration shootDuration = new ShootDuration(shootDuration: 0f, chargeTime: 0f);
+		private GunClip gunClip = new GunClip(bulletCapacity: 50, currentBulletCapacity: 50);
+		private ShootFire shootFire = new ShootFire();
+		public override bool IsReloading => gunClip.isReloading;
 
-		private void Start()
+		// 更新武器装备状态
+		public override void IsEquipped()
 		{
-			shootDuration = new ShootDuration(shootDuration: 0f, chargeTime: 0f);
-			gunClip = new GunClip(bulletCapacity: 80, currentBulletCapacity: 80);
-
 			gunClip.UpdateUI();
 		}
 
 		private void Update()
 		{
-			gunClip.BulletReload(); // 换弹夹
+			gunClip.BulletReload(reloadSound); // 换弹夹
 		}
 
 		// MP5的射击方式：鼠标按下后可以连续开枪
@@ -43,6 +43,9 @@ namespace QFramework.ProjectGungeon
 
 			// 子弹消耗
 			gunClip.UseBullet();
+
+			// 开枪火花
+			shootFire.ShowShootFire(bulletPrefab.Position2D(), shootDirection);
 		}
 
 		// 开始射击
@@ -56,10 +59,14 @@ namespace QFramework.ProjectGungeon
 
 		public override void Shooting(Vector2 shootDirection)
 		{
-			if (shootDuration.CanShoot && gunClip.CanShoot && currentSecond >= 0.1f)
+			if (shootDuration.CanShoot && gunClip.CanShoot && currentSecond >= 0.1f && !IsReloading)
 			{
 				Shoot(shootDirection);
 				currentSecond = 0f;
+			}
+			else if (!gunClip.CanShoot)
+			{
+				audioPlayer.Stop();
 			}
 			currentSecond += Time.deltaTime;
 		}

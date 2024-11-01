@@ -8,14 +8,14 @@ namespace QFramework.ProjectGungeon
 
 		public override PlayerBullet bulletPrefab => PlayerBullet; // 主角子弹模板
 		public override AudioSource audioPlayer => SelfAudioSource; // 音效播放器
-		private ShootDuration shootDuration;
-		private GunClip gunClip;
+		private ShootDuration shootDuration = new ShootDuration(shootDuration: 1.0f, chargeTime: 0f);
+		private GunClip gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
+		private ShootFire shootFire = new ShootFire();
+		public override bool IsReloading => gunClip.isReloading;
 
-		private void Start()
+		// 更新武器装备状态
+		public override void IsEquipped()
 		{
-			shootDuration = new ShootDuration(shootDuration: 1.0f, chargeTime: 0f);
-			gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
-
 			gunClip.UpdateUI();
 		}
 
@@ -26,7 +26,7 @@ namespace QFramework.ProjectGungeon
 				shootDuration.Duration -= Time.deltaTime; // 每帧减少冷却时间
 			}
 
-			gunClip.BulletReload(); // 换弹夹
+			gunClip.BulletReload(reloadSound); // 换弹夹
 		}
 
 		// ShotGun的射击方式：鼠标按下后可以同时发射三颗子弹，有较长冷却时间
@@ -51,7 +51,7 @@ namespace QFramework.ProjectGungeon
 
 		public override void ShootMouseDown(Vector2 shootDirection)
 		{
-			if (shootDuration.CanShoot && gunClip.CanShoot)
+			if (shootDuration.CanShoot && gunClip.CanShoot && !IsReloading)
 			{
 				Shoot(shootDirection);
 
@@ -62,6 +62,9 @@ namespace QFramework.ProjectGungeon
 				Shoot(thirdBulletDirection);
 
 				shootDuration.Duration = 1.0f;  // 重置冷却计时器
+
+				// 开枪火花
+				shootFire.ShowShootFire(bulletPrefab.Position2D(), shootDirection);
 			}
 		}
 	}
