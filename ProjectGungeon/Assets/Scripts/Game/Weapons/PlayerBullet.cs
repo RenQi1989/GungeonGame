@@ -8,6 +8,7 @@ public class PlayerBullet : MonoBehaviour
     public Vector2 direction;
     public float speed = 15.0f;
     public Rigidbody2D playerBulletRb;
+    public int gunDamage { get; set; } // 主角子弹默认伤害
 
     private void Awake()
     {
@@ -25,7 +26,7 @@ public class PlayerBullet : MonoBehaviour
         var enemy = other.gameObject.GetComponent<Enemy>(); // 使用挂载的脚本是不是Enemy判断
         if (enemy)
         {
-            enemy.Hurt(1);
+            enemy.Hurt(gunDamage);
             Destroy(gameObject); // 销毁主角子弹
         }
         else // 碰到其他东西(比如墙体)，销毁主角子弹

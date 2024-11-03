@@ -9,7 +9,7 @@ namespace QFramework.Project
 		public override PlayerBullet bulletPrefab => PlayerBullet; // 主角子弹模板
 		public override AudioSource audioPlayer => SelfAudioSource; // 音效播放器
 		private ShootDuration shootDuration = new ShootDuration(shootDuration: 0.5f, chargeTime: 0.5f);
-		private GunClip gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
+		private GunClip gunClip = new GunClip(clipCapacity: 30, currentClipCapacity: 30);
 		float chargeTime = 0; // 蓄力时间
 		public override bool IsReloading => gunClip.isReloading;
 
@@ -35,6 +35,7 @@ namespace QFramework.Project
 			playerBullet.direction = shootDirection;
 			playerBullet.transform.right = shootDirection; // 调整箭的飞行角度
 			playerBullet.gameObject.SetActive(true); // 把在Inspector失活的子弹重新激活
+			playerBullet.gunDamage = 1;
 
 			// 播放随机射击音效
 			var soundsIndex = Random.Range(0, shootSounds.Count);
@@ -48,7 +49,7 @@ namespace QFramework.Project
 		// 按下鼠标：搭箭
 		public override void ShootMouseDown(Vector2 shootDirection)
 		{
-			if (gunClip.CurrentBulletCapacity > 0) // 如果还有子弹就显示蓄力箭，没有子弹就不显示
+			if (gunClip.CurrentClipCapacity > 0) // 如果还有子弹就显示蓄力箭，没有子弹就不显示
 			{
 				PrepareArrow.gameObject.SetActive(true);
 			}
@@ -63,7 +64,7 @@ namespace QFramework.Project
 		{
 			chargeTime += Time.deltaTime; // 累积蓄力时间
 
-			if (gunClip.CurrentBulletCapacity > 0)
+			if (gunClip.CurrentClipCapacity > 0)
 			{
 				PrepareArrow.gameObject.SetActive(true);
 			}
@@ -76,7 +77,7 @@ namespace QFramework.Project
 		// 放开鼠标：发射
 		public override void ShootMouseUp(Vector2 shootDirection)
 		{
-			if (gunClip.CurrentBulletCapacity > 0 && chargeTime > 0.5f && !IsReloading)
+			if (gunClip.CurrentClipCapacity > 0 && chargeTime > 0.5f && !IsReloading)
 			{
 				PrepareArrow.gameObject.SetActive(false); // 隐藏蓄力箭
 				Shoot(shootDirection);

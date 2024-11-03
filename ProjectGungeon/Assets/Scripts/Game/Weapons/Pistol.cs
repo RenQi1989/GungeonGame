@@ -12,7 +12,7 @@ namespace QFramework.ProjectGungeon
         public override PlayerBullet bulletPrefab => PlayerBullet;
         public override AudioSource audioPlayer => SelfAudioSource;
         private ShootDuration shootDuration = new ShootDuration(shootDuration: 0.5f, chargeTime: 0f);
-        private GunClip gunClip = new GunClip(bulletCapacity: 30, currentBulletCapacity: 30);
+        private GunClip gunClip = new GunClip(clipCapacity: 30, currentClipCapacity: 30);
         private ShootFire shootFire = new ShootFire();
         public override bool IsReloading => gunClip.isReloading;
 
@@ -43,6 +43,7 @@ namespace QFramework.ProjectGungeon
             playerBullet.transform.position = bulletPrefab.transform.position;
             playerBullet.direction = shootDirection;
             playerBullet.gameObject.SetActive(true); // 把在Inspector失活的子弹重新激活
+            playerBullet.gunDamage = 1;
 
             // 播放随机射击音效
             var soundsIndex = Random.Range(0, shootSounds.Count);
