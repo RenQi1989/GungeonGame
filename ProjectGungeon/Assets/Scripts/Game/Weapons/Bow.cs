@@ -9,7 +9,7 @@ namespace QFramework.Project
 		public override PlayerBullet bulletPrefab => PlayerBullet; // 主角子弹模板
 		public override AudioSource audioPlayer => SelfAudioSource; // 音效播放器
 		private ShootDuration shootDuration = new ShootDuration(shootDuration: 0.5f, chargeTime: 0.5f);
-		private GunClip gunClip = new GunClip(clipCapacity: 30, currentClipCapacity: 30);
+		private GunClip gunClip = new GunClip(clipCapacity: 30, currentClipCapacity: 30, bulletBackpack: 60);
 		float chargeTime = 0; // 蓄力时间
 		public override bool IsReloading => gunClip.isReloading;
 

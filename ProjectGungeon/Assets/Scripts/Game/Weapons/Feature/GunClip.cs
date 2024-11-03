@@ -12,17 +12,27 @@ public class GunClip
     // 允许射击的条件：有子弹
     public bool CanShoot => CurrentClipCapacity > 0;
 
+    public int BulletBackpack { get; set; } // 背包里的子弹数量
+
     // 构造器
-    public GunClip(int clipCapacity, int currentClipCapacity)
+    public GunClip(int clipCapacity, int currentClipCapacity, int bulletBackpack)
     {
         ClipCapacity = clipCapacity;
         CurrentClipCapacity = currentClipCapacity;
+        BulletBackpack = bulletBackpack;
     }
 
     // 更新UI
     public void UpdateUI()
     {
-        GameUI.UpdateWeaponInfo(this);
+        if (GameUI.Default != null)
+        {
+            GameUI.UpdateWeaponInfo(this);
+        }
+        else
+        {
+            Debug.LogWarning("GameUI.Default is not initialized yet.");
+        }
     }
 
     // 子弹消耗
@@ -32,11 +42,14 @@ public class GunClip
         UpdateUI();
     }
 
-    // 计算每次需要 Reload 的子弹数量
+    // 计算需要 Reload 的子弹数量
     public int GetReloadAmount()
     {
         return ClipCapacity - CurrentClipCapacity;
     }
+
+    // 判断弹夹是否满了
+    public bool Full => CurrentClipCapacity == ClipCapacity;
 
     // 更换弹夹
     public void BulletReload(AudioClip reloadSound)
@@ -45,19 +58,29 @@ public class GunClip
         if (Input.GetKeyDown(KeyCode.R))
         {
 
-            isReloading = true;
-            int amountToReload = GetReloadAmount();
+            if (BulletBackpack > 0)
+            {
+                isReloading = true;
+                int amountToReload = GetReloadAmount();
+                int bulletsToTake = Mathf.Min(amountToReload, BulletBackpack);
 
-            ActionKit.Sequence()
-                .PlaySound(reloadSound) // 播放重装音效
-                .Callback(() =>
-                {
-                    CurrentClipCapacity += amountToReload; // 恢复弹夹容量
-                    UpdateUI(); // 更新 UI
-                    isReloading = false;
-                })
-                .StartCurrentScene();
+                // 更新弹夹容量和背包子弹数量，确保不会超过 ClipCapacity
+                CurrentClipCapacity = Mathf.Min(CurrentClipCapacity + bulletsToTake, ClipCapacity);
+                BulletBackpack -= bulletsToTake;
 
+                ActionKit.Sequence()
+                    .PlaySound(reloadSound) // 播放重装音效
+                    .Callback(() =>
+                    {
+                        UpdateUI(); // 更新 UI
+                        isReloading = false;
+                    })
+                    .StartCurrentScene();
+            }
+            else
+            {
+                Debug.Log("背包中没有足够的子弹来重装！");
+            }
         }
     }
 }

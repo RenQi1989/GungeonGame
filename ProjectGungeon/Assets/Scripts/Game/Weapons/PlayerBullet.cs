@@ -8,7 +8,7 @@ public class PlayerBullet : MonoBehaviour
     public Vector2 direction;
     public float speed = 15.0f;
     public Rigidbody2D playerBulletRb;
-    public int gunDamage { get; set; } // 主角子弹默认伤害
+    public int gunDamage { get; set; } // 主角子弹伤害
 
     private void Awake()
     {

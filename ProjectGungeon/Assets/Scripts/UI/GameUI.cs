@@ -62,7 +62,7 @@ public partial class GameUI : MonoBehaviour
     {
         if (Default != null && Default.WeaponInfo != null)
         {
-            Default.WeaponInfo.text = $"Bullet: {gunClip.CurrentClipCapacity}/{gunClip.ClipCapacity} (Press R to Reload)";
+            Default.WeaponInfo.text = $"Bullet: {gunClip.CurrentClipCapacity}/{gunClip.ClipCapacity} [{gunClip.BulletBackpack}] (Press R to Reload)";
         }
         else
         {

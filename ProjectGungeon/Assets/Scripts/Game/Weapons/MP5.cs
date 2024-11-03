@@ -10,7 +10,7 @@ namespace QFramework.ProjectGungeon
 		public override AudioSource audioPlayer => SelfAudioSource;
 		private float currentSecond = 0f; // 连续射击
 		private ShootDuration shootDuration = new ShootDuration(shootDuration: 0f, chargeTime: 0f);
-		private GunClip gunClip = new GunClip(clipCapacity: 50, currentClipCapacity: 50);
+		private GunClip gunClip = new GunClip(clipCapacity: 40, currentClipCapacity: 40, bulletBackpack: 80);
 		private ShootFire shootFire = new ShootFire();
 		public override bool IsReloading => gunClip.isReloading;
 

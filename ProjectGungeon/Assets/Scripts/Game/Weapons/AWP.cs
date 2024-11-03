@@ -8,7 +8,7 @@ namespace QFramework.ProjectGungeon
 		public override PlayerBullet bulletPrefab => PlayerBullet; // 主角子弹模板
 		public override AudioSource audioPlayer => SelfAudioSource; // 音效播放器
 		private ShootDuration shootDuration = new ShootDuration(shootDuration: 1.5f, chargeTime: 0f);
-		private GunClip gunClip = new GunClip(clipCapacity: 20, currentClipCapacity: 20);
+		private GunClip gunClip = new GunClip(clipCapacity: 10, currentClipCapacity: 10, bulletBackpack: 30);
 		private ShootFire shootFire = new ShootFire();
 		public override bool IsReloading => gunClip.isReloading;
 
