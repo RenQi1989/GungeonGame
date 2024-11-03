@@ -2858,6 +2858,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 161b64a98c12047e1b84c2de2307a2b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Namespace: QFramework.ProjectGungeon
+  ScriptName: LevelController
+  ScriptsFolder: Assets/Scripts/Game
+  GeneratePrefab: 0
+  PrefabFolder: Assets/Art/Prefab
+  ArchitectureFullTypeName: 
+  ViewControllerFullTypeName: 
   groundTile: {fileID: 11400000, guid: e97721a75c7a64ae8b157bde9497f066, type: 2}
   wallTileMap: {fileID: 1145521631}
   floorTileMap: {fileID: 2043483489}
@@ -2872,6 +2879,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 1607377536}
   enemyPrefab: {fileID: 1207979111}
   finalDoorPrefab: {fileID: 156284579}
+  Room: {fileID: 1920813902}
 --- !u!4 &887366957
 Transform:
   m_ObjectHideFlags: 0
@@ -2887,6 +2895,7 @@ Transform:
   m_Children:
   - {fileID: 394411302}
   - {fileID: 156284577}
+  - {fileID: 1920813904}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &998925124
@@ -4807,6 +4816,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1907002977}
   m_CullTransparentMesh: 1
+--- !u!1 &1920813901
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1920813904}
+  - component: {fileID: 1920813902}
+  - component: {fileID: 1920813903}
+  m_Layer: 0
+  m_Name: Room
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1920813902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920813901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6211bfa1d9ee4fcfb2ac74daf6bbc80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Namespace: QFramework.ProjectGungeon
+  ScriptName: Room
+  ScriptsFolder: Assets/Scripts/Game
+  GeneratePrefab: 0
+  PrefabFolder: Assets/Art/Prefab
+  ArchitectureFullTypeName: 
+  ViewControllerFullTypeName: 
+--- !u!114 &1920813903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920813901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d51f3a7c41ab0346b49ae50d456bece, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MarkType: 0
+  CustomComponentName: Room
+  CustomComment: 
+  mComponentName: QFramework.ProjectGungeon.Room
+--- !u!4 &1920813904
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920813901}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 887366957}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1931730346
 GameObject:
   m_ObjectHideFlags: 0
