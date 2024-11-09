@@ -22,6 +22,9 @@ MonoBehaviour:
     - TypeName: QFramework.ProjectGungeon.Room
       PathToRoot: Room
       MemberName: Room
+    - TypeName: QFramework.ProjectGungeon.Door
+      PathToRoot: Door
+      MemberName: Door
     ScriptsFolder: Assets/Scripts/Game
     ClassName: LevelController
     Namespace: QFramework.ProjectGungeon
@@ -31,9 +34,10 @@ MonoBehaviour:
       Designer\uFF09\u7684\u547D\u540D\u7A7A\u95F4\u624B\u52A8\u66F4\u6539\nnamespace
       QFramework.ProjectGungeon\n{\n\tpublic partial class LevelController : ViewController\n\t{\n\t\tvoid
       Start()\n\t\t{\n\t\t\t// Code Here\n\t\t}\n\t}\n}\n"
-    DesignerCode: "// Generate Id:2d88c07f-3c12-466c-8848-fc9db38bcc8d\nusing UnityEngine;\n\n//
+    DesignerCode: "// Generate Id:89a8eb79-8666-442f-b7c9-c4e6f67136ea\nusing UnityEngine;\n\n//
       1.\u8BF7\u5728\u83DC\u5355 \u7F16\u8F91\u5668\u6269\u5C55/Namespace Settings
       \u91CC\u8BBE\u7F6E\u547D\u540D\u7A7A\u95F4\n// 2.\u547D\u540D\u7A7A\u95F4\u66F4\u6539\u540E\uFF0C\u751F\u6210\u4EE3\u7801\u4E4B\u540E\uFF0C\u9700\u8981\u628A\u903B\u8F91\u4EE3\u7801\u6587\u4EF6\uFF08\u975E
       Designer\uFF09\u7684\u547D\u540D\u7A7A\u95F4\u624B\u52A8\u66F4\u6539\nnamespace
       QFramework.ProjectGungeon\n{\n\tpublic partial class LevelController\n\t{\n\n\t\tpublic
-      QFramework.ProjectGungeon.Room Room;\n\n\t}\n}\n"
+      QFramework.ProjectGungeon.Room Room;\n\n\t\tpublic QFramework.ProjectGungeon.Door
+      Door;\n\n\t}\n}\n"

@@ -31,6 +31,9 @@ namespace QFramework.ProjectGungeon
         public Enemy enemyPrefab;
         public FinalDoor finalDoorPrefab;
 
+        [Header("Level Settings")]
+        public static LevelController Default;
+
         // 随机铺墙壁
         public TileBase Wall
         {
@@ -83,116 +86,51 @@ namespace QFramework.ProjectGungeon
             }
         }
 
-        // 字符串房间列表
-        /*
-
-        1 代表 Ground
-        @ 代表 主角
-        e 代表 敌人
-        # 代表 终点传送门
-
-        */
-
-        // 加 { get; set; } 防止序列化（不可在unity里被误修改）
-        // 序列化 = public = 在 Unity 里直接显示
-        public List<string> initRoom { get; set; } = new List<string>()
-    {
-        "111111111111111111",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1            1   1",
-        "1             1  1",
-        "1   11            ",
-        "1    1            ",
-        "1  @              ",
-        "1        1        ",
-        "1       1        1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "111111111111111111",
-    };
-
-        public List<string> NormalRoom { get; set; } = new List<string>()
-    {
-        "111111111111111111",
-        "1                1",
-        "1        e       1",
-        "1       e1e      1",
-        "1        e       1",
-        "1                1",
-        "1                1",
-        "       1          ",
-        "        ee1       ",
-        "        ee1       ",
-        "       1          ",
-        "1                1",
-        "1                1",
-        "1        e       1",
-        "1       e1e      1",
-        "1        e       1",
-        "1                1",
-        "111111111111111111",
-    };
-
-        public List<string> FinalRoom { get; set; } = new List<string>()
-    {
-        "111111111111111111",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "                 1",
-        "                 1",
-        "            #    1",
-        "                 1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "1                1",
-        "111111111111111111",
-    };
-
         private void Awake()
         {
+            Default = this; // 设置单例
+
             // 开局之前隐藏掉主角和敌人的模板
             playerPrefab.gameObject.SetActive(false);
             enemyPrefab.gameObject.SetActive(false);
+        }
+
+        private void OnDestroy()
+        {
+            Default = null; // 销毁单例
         }
 
         void Start()
         {
             Room.Hide(); // 隐藏模板房间
             var currentRoomPosX = 0;
-            GenerateRoom(currentRoomPosX, initRoom); // 生成初始房间（初始房间在 00 位置）
+            GenerateRoom(currentRoomPosX, Config.initRoom); // 生成初始房间（初始房间在 00 位置）
 
-            currentRoomPosX += initRoom.First().Length + 2; // 之后的房间生成在初始房间等宽，再加两个格子的右边
-            GenerateRoom(currentRoomPosX, NormalRoom); // 生成正常房间
+            currentRoomPosX += Config.initRoom.codes.First().Length + 2; // 之后的房间生成在初始房间等宽，再加两个格子的右边
+            GenerateRoom(currentRoomPosX, Config.normalRoom); // 生成正常房间
 
-            currentRoomPosX += initRoom.First().Length + 2;
-            GenerateRoom(currentRoomPosX, FinalRoom); // 生成BOSS房间
-
+            currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+            GenerateRoom(currentRoomPosX, Config.finalRoom); // 生成 BOSS 房间
         }
 
-        void GenerateRoom(int startRoomPosX, List<string> roomCode)
+        void GenerateRoom(int startRoomPosX, RoomConfig roomConfig)
         {
-            var roomWidth = roomCode[0].Length; // roomCode.Count 是列表的行数（地图的高）
-            var roomHeight = roomCode.Count(); // rowCode.Length 则表示当前行的长度（地图的宽）
+            var roomCode = roomConfig.codes;
+            var roomWidth = roomCode[0].Length; // rowCode.Length 则表示当前行的长度（地图的宽）
+            var roomHeight = roomCode.Count(); // roomCode.Count 是列表的行数（地图的高） 
 
+            // 房间位置（去掉墙体，可供移动的区域）
             var roomPositionX = startRoomPosX + roomWidth * 0.5f;
-            var roomPositionY = 0 + roomHeight * 0.5f;
+            var roomPositionY = 1.0f + roomHeight * 0.5f;
 
-            var room = Room.InstantiateWithParent(this)
+            // 获得 Room脚本：Room 是 LevelController 的子节点
+            var roomScript = Room.InstantiateWithParent(this)
                             .Position(roomPositionX, roomPositionY)
+                            .WithConfig(roomConfig) // 给创建的房间加入配置信息
                             .Show();
+
+            // 设置房间感应区域，要完全覆盖住可供移动的区域（-2是为了保证主角完全进入房间）    
+            roomScript.SelfBoxCollider2D.size = new Vector2(roomWidth - 2, roomHeight - 2);
 
             // 双层 for 循环遍历 roomCode 列表
             for (var i = 0; i < roomCode.Count; i++) // 一行一行遍历
@@ -223,8 +161,16 @@ namespace QFramework.ProjectGungeon
                     }
                     else if (code == 'e') // 绘制敌人
                     {
-                        var enemyPosition = new Vector3(x + 0.5f, y + 0.5f, 0);
-                        room.AddEnemyPosition(enemyPosition);
+                        var enemyGeneratePosition = new Vector3(x + 0.5f, y + 0.5f, 0);
+                        roomScript.AddEnemyPosition(enemyGeneratePosition);
+                    }
+                    else if (code == 'd') // 绘制门
+                    {
+                        // 获得 Door 脚本：Door 是 Room 的子节点
+                        var doorScript = Door.InstantiateWithParent(roomScript)
+                                                .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
+                                                .Hide(); // 默认门是隐藏的
+                        roomScript.AddDoor(doorScript);
                     }
                     else if (code == '#') // 绘制终点传送门
                     {

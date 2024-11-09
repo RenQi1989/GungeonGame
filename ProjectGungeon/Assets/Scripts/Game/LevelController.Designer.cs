@@ -1,4 +1,4 @@
-// Generate Id:2d88c07f-3c12-466c-8848-fc9db38bcc8d
+// Generate Id:89a8eb79-8666-442f-b7c9-c4e6f67136ea
 using UnityEngine;
 
 // 1.请在菜单 编辑器扩展/Namespace Settings 里设置命名空间
@@ -9,6 +9,8 @@ namespace QFramework.ProjectGungeon
 	{
 
 		public QFramework.ProjectGungeon.Room Room;
+
+		public QFramework.ProjectGungeon.Door Door;
 
 	}
 }
