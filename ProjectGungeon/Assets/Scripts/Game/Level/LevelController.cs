@@ -103,14 +103,24 @@ namespace QFramework.ProjectGungeon
         void Start()
         {
             Room.Hide(); // 隐藏模板房间
-            var currentRoomPosX = 0;
-            GenerateRoom(currentRoomPosX, Config.initRoom); // 生成初始房间（初始房间在 00 位置）
 
-            currentRoomPosX += Config.initRoom.codes.First().Length + 2; // 之后的房间生成在初始房间等宽，再加两个格子的右边
-            GenerateRoom(currentRoomPosX, Config.normalRoom); // 生成正常房间
+            // 生成初始房间（初始房间在 00 位置）
+            var currentRoomPosX = 0;
+            GenerateRoom(currentRoomPosX, Config.initRoom);
+
+            // 生成正常房间（之后的房间生成在初始房间等宽，再加两个格子的右边）
+            currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+            GenerateRoom(currentRoomPosX, Config.normalRoomList.GetRandomItem());
 
             currentRoomPosX += Config.initRoom.codes.First().Length + 2;
-            GenerateRoom(currentRoomPosX, Config.finalRoom); // 生成 BOSS 房间
+            GenerateRoom(currentRoomPosX, Config.normalRoomList.GetRandomItem());
+
+            currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+            GenerateRoom(currentRoomPosX, Config.normalRoomList.GetRandomItem());
+
+            // 生成 BOSS 房间
+            currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+            GenerateRoom(currentRoomPosX, Config.finalRoom);
         }
 
         void GenerateRoom(int startRoomPosX, RoomConfig roomConfig)

@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class PlayerBullet : MonoBehaviour
 {
-    public Vector2 direction;
-    public float speed = 15.0f;
+    public Vector2 velocity; // velocity = direction * speed;
     public Rigidbody2D playerBulletRb;
     public int gunDamage { get; set; } // 主角子弹伤害
 
@@ -17,7 +16,7 @@ public class PlayerBullet : MonoBehaviour
 
     void FixedUpdate()
     {
-        playerBulletRb.velocity = direction * speed;
+        playerBulletRb.velocity = velocity;
     }
 
     // 碰撞检测

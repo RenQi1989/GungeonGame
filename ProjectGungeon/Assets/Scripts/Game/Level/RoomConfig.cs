@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using QFramework.ProjectGungeon;
 using UnityEngine;
 
-public class RoomConfig
+public class RoomConfig // 房间配置信息
 {
     public RoomTypes roomTypes;
     public List<string> codes = new List<string>();

@@ -33,7 +33,7 @@ namespace QFramework.ProjectGungeon
 
 			// 子弹发射的位置就是子弹模板的位置（枪口处）
 			playerBullet.transform.position = bulletPrefab.transform.position;
-			playerBullet.direction = shootDirection;
+			playerBullet.velocity = shootDirection.normalized * 20;
 			playerBullet.gunDamage = 1;
 			playerBullet.gameObject.SetActive(true); // 把在Inspector失活的子弹重新激活
 

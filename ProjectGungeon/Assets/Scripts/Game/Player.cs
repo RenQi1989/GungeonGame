@@ -12,7 +12,7 @@ public partial class Player : MonoBehaviour
 {
 	[Header("Player Settings")]
 	public Rigidbody2D playerRb;
-	public float speed = 2.5f;
+	public float speed = 7.0f;
 	public SpriteRenderer playerSprite;
 	public static int HP = 3;
 	public static Action HPChangeEvent;

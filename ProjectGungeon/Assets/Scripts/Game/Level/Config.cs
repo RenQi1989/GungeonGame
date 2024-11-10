@@ -11,6 +11,11 @@ namespace QFramework.ProjectGungeon
         FinalRoom
     }
 
+    public class EnemyWaveConfig
+    {
+
+    }
+
     public class Config
     {
         // 字符串房间列表
@@ -49,8 +54,11 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1                1")
             .DrawLine("111111111111111111");
 
-        public static RoomConfig normalRoom = new RoomConfig()
-                                            .Type(RoomTypes.NormalRoom)
+        // 正常房间列表
+        public static List<RoomConfig> normalRoomList = new List<RoomConfig>()
+        {
+            // 样式一
+            new RoomConfig().Type(RoomTypes.NormalRoom)
 
             .DrawLine("111111111111111111")
             .DrawLine("1                1")
@@ -69,7 +77,54 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1       e1       1")
             .DrawLine("1        e       1")
             .DrawLine("1                1")
-            .DrawLine("111111111111111111");
+            .DrawLine("111111111111111111"),
+
+            // 样式二
+            new RoomConfig().Type(RoomTypes.NormalRoom)
+
+            .DrawLine("111111111111111111")
+            .DrawLine("1                1")
+            .DrawLine("1          e11   1")
+            .DrawLine("1  11e      e1   1")
+            .DrawLine("1  1e            1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("d       e e      d")
+            .DrawLine("d       1 1      d")
+            .DrawLine("d       1 1      d")
+            .DrawLine("d       e e      d")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1          1e    1")
+            .DrawLine("1    1e    11e   1")
+            .DrawLine("1   11e          1")
+            .DrawLine("1                1")
+            .DrawLine("111111111111111111"),
+
+            // 样式三
+            new RoomConfig().Type(RoomTypes.NormalRoom)
+
+            .DrawLine("111111111111111111")
+            .DrawLine("1                1")
+            .DrawLine("1    e1e         1")
+            .DrawLine("1    111         1")
+            .DrawLine("1    e1e         1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("d                d")
+            .DrawLine("d      e1  1e    d")
+            .DrawLine("d       1111     d")
+            .DrawLine("d      e1  1e    d")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1    e1e         1")
+            .DrawLine("1    111         1")
+            .DrawLine("1    e1e         1")
+            .DrawLine("1                1")
+            .DrawLine("111111111111111111"),
+        };
+
+
 
         public static RoomConfig finalRoom = new RoomConfig()
                                             .Type(RoomTypes.FinalRoom)

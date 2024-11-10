@@ -8,12 +8,18 @@ namespace QFramework.ProjectGungeon
     {
         List<Vector3> enemyGeneratePositionsList = new List<Vector3>(); // 敌人位置列表
         private List<Door> doors = new List<Door>(); // 门列表
-
         public RoomConfig roomConfig { get; private set; } // 房间配置信息
-
         private HashSet<Enemy> enemiesRecords = new HashSet<Enemy>(); // 记录已经生成的敌人( HashSet 可以快速检查列表是否为null，不用像 List 一样逐个遍历)
-
         public RoomStates roomStates { get; set; } = RoomStates.Locked; // 房间状态默认是关闭
+
+        // 敌人波次列表
+        private List<EnemyWaveConfig> enemyWaves = new List<EnemyWaveConfig>()
+        {
+            new EnemyWaveConfig(),
+            new EnemyWaveConfig(),
+            new EnemyWaveConfig()
+        };
+        private EnemyWaveConfig currentEnemyWave = null; // 当前敌人波次
 
         // 房间状态：防止玩家消灭了所有敌人后，退回原房间，门再次关上
         public enum RoomStates
@@ -28,16 +34,40 @@ namespace QFramework.ProjectGungeon
             // 每 30 帧判断一次房间里的敌人是否被清空
             if (Time.frameCount % 30 == 0)
             {
+                // 敌人记录数量为0 且 房间状态为主角已进入
                 if (enemiesRecords.Count == 0 && roomStates == RoomStates.PlayerInside)
                 {
-                    roomStates = RoomStates.Unlocked;
-                    foreach (var door in doors)
+                    if (enemyWaves.Count > 0) // 还有剩余敌人波次
                     {
-                        door.Hide();
+                        GenerateEnemies();
+                    }
+                    else // 没有敌人剩余波次
+                    {
+                        // 门打开
+                        roomStates = RoomStates.Unlocked;
+                        foreach (var door in doors)
+                        {
+                            door.Hide();
+                        }
                     }
                 }
                 // 从 enemiesRecords 中【批量删除】所有 null 或已销毁的对象
                 enemiesRecords.RemoveWhere(e => !e);
+            }
+        }
+
+        // 生成敌人(有敌人剩余波次时才生成)
+        public void GenerateEnemies()
+        {
+            enemyWaves.RemoveAt(0); // 移除上一波敌人(移除列表里的第一个元素)
+
+            foreach (var enemyGeneratePosition in enemyGeneratePositionsList)
+            {
+                var enemy = Instantiate(LevelController.Default.enemyPrefab);
+                enemy.transform.position = enemyGeneratePosition; // 敌人出现的位置就是之前生成好的位置
+                enemy.gameObject.SetActive(true);
+
+                enemiesRecords.Add(enemy);
             }
         }
 
@@ -59,20 +89,13 @@ namespace QFramework.ProjectGungeon
         {
             if (other.CompareTag("Player")) // 当玩家进入房间（即房间感应到玩家）
             {
-                // 只有房间类型为 Normal 且 房间状态是关闭 时，才会生成敌人和门
+                // 只有房间类型为 Normal 且 房间状态是关闭 时，才会生成敌人 & 门
                 if (roomConfig.roomTypes == RoomTypes.NormalRoom && roomStates == RoomStates.Locked)
                 {
                     roomStates = RoomStates.PlayerInside;
 
-                    // 生成敌人
-                    foreach (var enemyGeneratePosition in enemyGeneratePositionsList)
-                    {
-                        var enemy = Instantiate(LevelController.Default.enemyPrefab);
-                        enemy.transform.position = enemyGeneratePosition; // 敌人出现的位置就是之前生成好的位置
-                        enemy.gameObject.SetActive(true);
+                    GenerateEnemies();
 
-                        enemiesRecords.Add(enemy);
-                    }
                     // 显示门
                     foreach (var door in doors)
                     {
@@ -86,5 +109,6 @@ namespace QFramework.ProjectGungeon
         {
             doors.Add(door);
         }
+
     }
 }
