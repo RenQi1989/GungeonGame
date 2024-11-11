@@ -121,6 +121,30 @@ namespace QFramework.ProjectGungeon
             // 生成 BOSS 房间
             currentRoomPosX += Config.initRoom.codes.First().Length + 2;
             GenerateRoom(currentRoomPosX, Config.finalRoom);
+
+            // 生成过道(先找到门的位置，再向右遍历两个 tile 的位置)
+            var roomWidth = Config.initRoom.codes.First().Length;
+            var roomHeight = Config.initRoom.codes.Count;
+
+            // 循环铺多个房间的过道
+            for (int roomIndex = 0; roomIndex < 4; roomIndex++)
+            {
+                currentRoomPosX = roomIndex * (roomWidth + 2);
+
+                var doorStartX = currentRoomPosX + roomWidth - 1;
+                var doorStartY = 0 + roomHeight / 2 + 1; // (int)(roomHeight * 0.5 - 1);
+
+                // 铺一个房间的过道
+                for (int i = 0; i < 2; i++) // 一共遍历 2 次，每次遍历从上到下，铺 6 块砖
+                {
+                    wallTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY + 2, 0), Wall);
+                    floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY + 1, 0), Floor);
+                    floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY, 0), Floor);
+                    floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 1, 0), Floor);
+                    floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 2, 0), Floor);
+                    wallTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 3, 0), Wall);
+                }
+            }
         }
 
         void GenerateRoom(int startRoomPosX, RoomConfig roomConfig)
@@ -129,7 +153,7 @@ namespace QFramework.ProjectGungeon
             var roomWidth = roomCode[0].Length; // rowCode.Length 则表示当前行的长度（地图的宽）
             var roomHeight = roomCode.Count(); // roomCode.Count 是列表的行数（地图的高） 
 
-            // 房间位置（去掉墙体，可供移动的区域）
+            // 房间坐标（去掉墙体，可供移动的区域）
             var roomPositionX = startRoomPosX + roomWidth * 0.5f;
             var roomPositionY = 1.0f + roomHeight * 0.5f;
 
@@ -176,6 +200,7 @@ namespace QFramework.ProjectGungeon
                     }
                     else if (code == 'd') // 绘制门
                     {
+                        Debug.Log("Door position at: " + x + ", " + y);
                         // 获得 Door 脚本：Door 是 Room 的子节点
                         var doorScript = Door.InstantiateWithParent(roomScript)
                                                 .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))

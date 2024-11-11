@@ -16,6 +16,10 @@ namespace QFramework.Project
         // 更新武器装备状态
         public override void IsEquipped()
         {
+            if (gunClip.CurrentClipCapacity == 0) // 主角当前弹夹子弹数为0时，显示提示文字
+            {
+                Player.Default.DisplayTextOnPlayer("No Arrow!", 2);
+            }
             gunClip.UpdateUI();
         }
 
@@ -44,6 +48,9 @@ namespace QFramework.Project
 
             // 子弹消耗
             gunClip.UseBullet();
+
+            // 更新武器装备状态
+            IsEquipped();
         }
 
         // 按下鼠标：搭箭

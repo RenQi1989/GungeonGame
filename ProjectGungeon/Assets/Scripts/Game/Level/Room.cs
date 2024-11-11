@@ -1,6 +1,7 @@
 using UnityEngine;
 using QFramework;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace QFramework.ProjectGungeon
 {
@@ -19,7 +20,6 @@ namespace QFramework.ProjectGungeon
             new EnemyWaveConfig(),
             new EnemyWaveConfig()
         };
-        private EnemyWaveConfig currentEnemyWave = null; // 当前敌人波次
 
         // 房间状态：防止玩家消灭了所有敌人后，退回原房间，门再次关上
         public enum RoomStates
@@ -61,13 +61,39 @@ namespace QFramework.ProjectGungeon
         {
             enemyWaves.RemoveAt(0); // 移除上一波敌人(移除列表里的第一个元素)
 
-            foreach (var enemyGeneratePosition in enemyGeneratePositionsList)
+            /*foreach (var enemyGeneratePosition in enemyGeneratePositionsList)
             {
                 var enemy = Instantiate(LevelController.Default.enemyPrefab);
                 enemy.transform.position = enemyGeneratePosition; // 敌人出现的位置就是之前生成好的位置
                 enemy.gameObject.SetActive(true);
 
                 enemiesRecords.Add(enemy);
+            }*/
+
+            // Shuffle方法：随机生成敌人位置和数量
+            var enemyCount = Random.Range(3, 6 + 1);
+
+            Shuffle(enemyGeneratePositionsList);
+
+            for (int i = 0; i < enemyCount && i < enemyGeneratePositionsList.Count; i++)
+            {
+                var enemy = Instantiate(LevelController.Default.enemyPrefab);
+                enemy.transform.position = enemyGeneratePositionsList[i]; // 敌人出现的位置按随机分配
+                enemy.gameObject.SetActive(true);
+
+                enemiesRecords.Add(enemy);
+            }
+        }
+
+        // Shuffle API
+        private void Shuffle<T>(List<T> list)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int randomIndex = Random.Range(0, i + 1);
+                T temp = list[i];
+                list[i] = list[randomIndex];
+                list[randomIndex] = temp;
             }
         }
 
@@ -95,13 +121,18 @@ namespace QFramework.ProjectGungeon
                     roomStates = RoomStates.PlayerInside;
 
                     GenerateEnemies();
-
-                    // 显示门
-                    foreach (var door in doors)
-                    {
-                        door.Show();
-                    }
+                    StartCoroutine(ShowDoorsWithDelay()); // 关门延迟协程
                 }
+            }
+        }
+
+        // 关门延迟协程
+        private IEnumerator ShowDoorsWithDelay()
+        {
+            yield return new WaitForSeconds(0.5f); // 延迟0.5秒
+            foreach (var door in doors)
+            {
+                door.Show();
             }
         }
 

@@ -107,7 +107,7 @@ namespace QFramework.ProjectGungeon
             .DrawLine("111111111111111111")
             .DrawLine("1                1")
             .DrawLine("1    e1e         1")
-            .DrawLine("1    111         1")
+            .DrawLine("1                1")
             .DrawLine("1    e1e         1")
             .DrawLine("1                1")
             .DrawLine("1                1")
@@ -118,7 +118,7 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1                1")
             .DrawLine("1                1")
             .DrawLine("1    e1e         1")
-            .DrawLine("1    111         1")
+            .DrawLine("1                1")
             .DrawLine("1    e1e         1")
             .DrawLine("1                1")
             .DrawLine("111111111111111111"),

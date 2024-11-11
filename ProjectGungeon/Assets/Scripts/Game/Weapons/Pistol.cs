@@ -15,10 +15,15 @@ namespace QFramework.ProjectGungeon
         private GunClip gunClip = new GunClip(clipCapacity: 30, currentClipCapacity: 30, bulletBackpack: 100);
         private ShootFire shootFire = new ShootFire();
         public override bool IsReloading => gunClip.isReloading;
+        public AudioClip emptyClipSound;
 
         // 更新武器装备状态
         public override void IsEquipped()
         {
+            if (gunClip.CurrentClipCapacity == 0) // 当前弹夹子弹数为0时，显示提示文字
+            {
+                Player.Default.DisplayTextOnPlayer("No Bullet!", 2);
+            }
             gunClip.UpdateUI();
         }
 
@@ -53,6 +58,9 @@ namespace QFramework.ProjectGungeon
             // 子弹消耗
             gunClip.UseBullet();
 
+            // 更新武器装备状态
+            IsEquipped();
+
             // 开枪火花
             shootFire.ShowShootFire(bulletPrefab.Position2D(), shootDirection);
         }
@@ -63,6 +71,11 @@ namespace QFramework.ProjectGungeon
             {
                 Shoot(shootDirection);
                 shootDuration.Duration = 0.25f; // 重置冷却时间
+            }
+
+            if (gunClip.CurrentClipCapacity == 0) // 当前弹夹子弹数为0，玩家抬起鼠标时，播放空弹夹音
+            {
+                audioPlayer.PlayOneShot(emptyClipSound);
             }
         }
     }

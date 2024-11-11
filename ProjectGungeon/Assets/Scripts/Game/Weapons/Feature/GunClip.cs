@@ -79,7 +79,7 @@ public class GunClip
             }
             else
             {
-                Debug.Log("背包中没有足够的子弹来重装！");
+                Debug.Log("No Enough Bullets In Bag!");
             }
         }
     }
