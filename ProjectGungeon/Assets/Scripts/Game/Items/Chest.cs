@@ -12,11 +12,18 @@ public class Chest : MonoBehaviour
     {
         if (other.gameObject.GetComponent<Player>())
         {
-            Player.Default.DisplayTextOnPlayer("Open the chest", 2);
-            GameObject hp1 = Instantiate(HP1Prefab, transform.position, Quaternion.identity);
-            hp1.SetActive(true);
             audioSource.Play();
-            Destroy(gameObject);
+            StartCoroutine(OpenChest());
         }
+    }
+
+    private IEnumerator OpenChest()
+    {
+        yield return new WaitForSeconds(openChestSound.length);  // 等待宝箱音效播放完成
+
+        GameObject hp1 = Instantiate(HP1Prefab, transform.position, Quaternion.identity);
+        hp1.SetActive(true); // 生成道具
+
+        Destroy(gameObject); // 销毁宝箱
     }
 }
