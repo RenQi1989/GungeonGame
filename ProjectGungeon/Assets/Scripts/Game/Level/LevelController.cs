@@ -200,7 +200,6 @@ namespace QFramework.ProjectGungeon
                     }
                     else if (code == 'd') // 绘制门
                     {
-                        Debug.Log("Door position at: " + x + ", " + y);
                         // 获得 Door 脚本：Door 是 Room 的子节点
                         var doorScript = Door.InstantiateWithParent(roomScript)
                                                 .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))

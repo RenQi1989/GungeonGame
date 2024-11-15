@@ -25,14 +25,7 @@ public class GunClip
     // 更新UI
     public void UpdateUI()
     {
-        if (GameUI.Default != null)
-        {
-            GameUI.UpdateWeaponInfo(this);
-        }
-        else
-        {
-            Debug.LogWarning("GameUI.Default is not initialized yet.");
-        }
+        GameUI.UpdateWeaponInfo(this);
     }
 
     // 子弹消耗
@@ -57,7 +50,6 @@ public class GunClip
         // 只有在按下 R 键时才执行重装逻辑
         if (Input.GetKeyDown(KeyCode.R))
         {
-
             if (BulletBackpack > 0)
             {
                 isReloading = true;
@@ -76,10 +68,6 @@ public class GunClip
                         isReloading = false;
                     })
                     .StartCurrentScene();
-            }
-            else
-            {
-                Debug.Log("No Enough Bullets In Bag!");
             }
         }
     }
