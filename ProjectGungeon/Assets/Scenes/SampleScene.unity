@@ -3036,7 +3036,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Namespace: QFramework.ProjectGungeon
   ScriptName: LevelController
-  ScriptsFolder: Assets/Scripts/Game
+  ScriptsFolder: Assets/Scripts/Game/Level
   GeneratePrefab: 0
   PrefabFolder: Assets/Art/Prefab
   ArchitectureFullTypeName: 
@@ -3055,6 +3055,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 1607377536}
   enemyPrefab: {fileID: 1207979111}
   finalDoorPrefab: {fileID: 156284579}
+  chestPrefab: {fileID: 1516698606}
   Room: {fileID: 1920813902}
   Door: {fileID: 1373436722}
 --- !u!4 &887366957
@@ -4626,7 +4627,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1516698605
 Transform:
   m_ObjectHideFlags: 0

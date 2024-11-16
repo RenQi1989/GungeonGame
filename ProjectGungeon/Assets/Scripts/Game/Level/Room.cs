@@ -17,7 +17,6 @@ namespace QFramework.ProjectGungeon
         private List<EnemyWaveConfig> enemyWaves = new List<EnemyWaveConfig>()
         {
             new EnemyWaveConfig(),
-            new EnemyWaveConfig(),
             new EnemyWaveConfig()
         };
 

@@ -8,6 +8,7 @@ using Unity.PlasticSCM.Editor.WebApi;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static RoomConfig;
 
 namespace QFramework.ProjectGungeon
 {
@@ -30,6 +31,7 @@ namespace QFramework.ProjectGungeon
         public Player playerPrefab;
         public Enemy enemyPrefab;
         public FinalDoor finalDoorPrefab;
+        public Chest chestPrefab;
 
         [Header("Level Settings")]
         public static LevelController Default;
@@ -104,50 +106,85 @@ namespace QFramework.ProjectGungeon
         {
             Room.Hide(); // 隐藏模板房间
 
+            // 带有 Node 信息的房间布局
+            var layout = new RoomNode(RoomTypes.InitRoom);
+
+            layout.GenerateNextRoom(RoomTypes.NormalRoom)
+                    .GenerateNextRoom(RoomTypes.NormalRoom)
+                    .GenerateNextRoom(RoomTypes.ChestRoom)
+                    .GenerateNextRoom(RoomTypes.NormalRoom)
+                    .GenerateNextRoom(RoomTypes.NormalRoom)
+                    .GenerateNextRoom(RoomTypes.FinalRoom);
+
             // 生成初始房间（初始房间在 00 位置）
             var currentRoomPosX = 0;
-            GenerateRoom(currentRoomPosX, Config.initRoom);
 
-            // 生成正常房间（之后的房间生成在初始房间等宽，再加两个格子的右边）
-            currentRoomPosX += Config.initRoom.codes.First().Length + 2;
-            GenerateRoom(currentRoomPosX, Config.normalRoomList.GetRandomItem());
-
-            currentRoomPosX += Config.initRoom.codes.First().Length + 2;
-            GenerateRoom(currentRoomPosX, Config.normalRoomList.GetRandomItem());
-
-            currentRoomPosX += Config.initRoom.codes.First().Length + 2;
-            GenerateRoom(currentRoomPosX, Config.normalRoomList.GetRandomItem());
-
-            // 生成 BOSS 房间
-            currentRoomPosX += Config.initRoom.codes.First().Length + 2;
-            GenerateRoom(currentRoomPosX, Config.finalRoom);
-
-            // 生成过道(先找到门的位置，再向右遍历两个 tile 的位置)
-            var roomWidth = Config.initRoom.codes.First().Length;
-            var roomHeight = Config.initRoom.codes.Count;
-
-            // 循环铺多个房间的过道
-            for (int roomIndex = 0; roomIndex < 4; roomIndex++)
+            // 生成房间
+            void GenerateRoomByNode(RoomNode node)
             {
-                currentRoomPosX = roomIndex * (roomWidth + 2);
-
-                var doorStartX = currentRoomPosX + roomWidth - 1;
-                var doorStartY = 0 + roomHeight / 2 + 1; // (int)(roomHeight * 0.5 - 1);
-
-                // 铺一个房间的过道
-                for (int i = 0; i < 2; i++) // 一共遍历 2 次，每次遍历从上到下，铺 6 块砖
+                // 针对一个房间
+                if (node.roomTypes == RoomTypes.InitRoom)
                 {
-                    wallTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY + 2, 0), Wall);
-                    floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY + 1, 0), Floor);
-                    floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY, 0), Floor);
-                    floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 1, 0), Floor);
-                    floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 2, 0), Floor);
-                    wallTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 3, 0), Wall);
+                    BuildRoom(currentRoomPosX, Config.initRoom);
+                    currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+                }
+                else if (node.roomTypes == RoomTypes.NormalRoom)
+                {
+                    BuildRoom(currentRoomPosX, Config.normalRoomList.GetRandomItem());
+                    currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+                }
+                else if (node.roomTypes == RoomTypes.ChestRoom)
+                {
+                    BuildRoom(currentRoomPosX, Config.chestRoom);
+                    currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+                }
+                else if (node.roomTypes == RoomTypes.FinalRoom)
+                {
+                    BuildRoom(currentRoomPosX, Config.finalRoom);
+                    currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+                }
+
+                // 遍历每个子节点，根据子节点生成房间
+                foreach (var child in node.children)
+                {
+                    GenerateRoomByNode(child);
                 }
             }
+
+            // 生成过道
+            void GenerateCorridor(int roomCount) // 参数是房间总数量
+            {
+                // 先找到门的位置，再向右遍历两个 tile 的位置
+                var roomWidth = Config.initRoom.codes.First().Length;
+                var roomHeight = Config.initRoom.codes.Count;
+
+                // 循环铺多个房间的过道
+                for (int roomIndex = 0; roomIndex < roomCount - 1; roomIndex++)
+                {
+                    currentRoomPosX = roomIndex * (roomWidth + 2);
+
+                    var doorStartX = currentRoomPosX + roomWidth - 1;
+                    var doorStartY = 0 + roomHeight / 2 + 1; // (int)(roomHeight * 0.5 - 1);
+
+                    // 铺一个房间的过道
+                    for (int i = 0; i < 2; i++) // 一共遍历 2 次，每次遍历从上到下，铺 6 块砖
+                    {
+                        wallTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY + 2, 0), Wall);
+                        floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY + 1, 0), Floor);
+                        floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY, 0), Floor);
+                        floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 1, 0), Floor);
+                        floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 2, 0), Floor);
+                        wallTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 3, 0), Wall);
+                    }
+                }
+            }
+
+            GenerateRoomByNode(layout);
+            GenerateCorridor(7); // 生成房间的数量
         }
 
-        void GenerateRoom(int startRoomPosX, RoomConfig roomConfig)
+
+        void BuildRoom(int startRoomPosX, RoomConfig roomConfig)
         {
             var roomCode = roomConfig.codes;
             var roomWidth = roomCode[0].Length; // rowCode.Length 则表示当前行的长度（地图的宽）
@@ -205,6 +242,12 @@ namespace QFramework.ProjectGungeon
                                                 .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
                                                 .Hide(); // 默认门是隐藏的
                         roomScript.AddDoor(doorScript);
+                    }
+                    else if (code == 'c') // 绘制宝箱
+                    {
+                        var chest = Instantiate(chestPrefab);
+                        chest.transform.position = new Vector3(x + 0.5f, y + 0.5f, 0);
+                        chest.gameObject.SetActive(true);
                     }
                     else if (code == '#') // 绘制终点传送门
                     {

@@ -6,8 +6,9 @@ namespace QFramework.ProjectGungeon
 {
     public enum RoomTypes
     {
-        initRoom,
+        InitRoom,
         NormalRoom,
+        ChestRoom,
         FinalRoom
     }
 
@@ -32,7 +33,7 @@ namespace QFramework.ProjectGungeon
         // 加 { get; set; } 防止序列化（不可在unity里被误修改）
         // 序列化 = public = 在 Unity 里直接显示
         public static RoomConfig initRoom = new RoomConfig()
-                                            .Type(RoomTypes.initRoom) // 使用 RoomConfig 类的 Type 方法
+                                            .Type(RoomTypes.InitRoom) // 使用 RoomConfig 类的 Type 方法
 
             // 使用 RoomConfig 类的 DrawLine 方法
             .DrawLine("111111111111111111")
@@ -124,8 +125,6 @@ namespace QFramework.ProjectGungeon
             .DrawLine("111111111111111111"),
         };
 
-
-
         public static RoomConfig finalRoom = new RoomConfig()
                                             .Type(RoomTypes.FinalRoom)
 
@@ -140,6 +139,28 @@ namespace QFramework.ProjectGungeon
             .DrawLine("d                1")
             .DrawLine("d           #    1")
             .DrawLine("d                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("111111111111111111");
+
+        public static RoomConfig chestRoom = new RoomConfig()
+                                    .Type(RoomTypes.ChestRoom)
+
+            .DrawLine("111111111111111111")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("1                1")
+            .DrawLine("d                d")
+            .DrawLine("d                d")
+            .DrawLine("d           c    d")
+            .DrawLine("d                d")
             .DrawLine("1                1")
             .DrawLine("1                1")
             .DrawLine("1                1")
