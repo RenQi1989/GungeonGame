@@ -104,10 +104,14 @@ namespace QFramework.ProjectGungeon
             Default = null; // 销毁单例
         }
 
-        // 生成房间节点
+        // 房间节点的信息
         public class GenerateRoomNode
         {
-            public RoomNode node { get; set; }
+            public RoomNode node;
+
+            // 因为一个房间可能有多个门的方向，所以用 HashSet 保存门的方向
+            public HashSet<DoorDirections> doorDirections { get; set; }
+
             public int x { get; set; } // 房间节点的 XY 坐标
             public int y { get; set; }
         }
@@ -141,14 +145,14 @@ namespace QFramework.ProjectGungeon
             // 生成房间布局
             void GenerateLayout(RoomNode roomNode, DynaGrid<GenerateRoomNode> layoutGrid)
             {
-
                 // 遍历网格队列（选择广度优先，深度优先容易进死胡同）
                 var queue = new Queue<GenerateRoomNode>();
                 queue.Enqueue(new GenerateRoomNode() // 在队列里加入第一个节点
                 {
                     x = 0,
                     y = 0,
-                    node = roomNode // 根节点
+                    node = roomNode, // 根节点
+                    doorDirections = new HashSet<DoorDirections>()
                 });
 
                 // 判断房间生成的方向
@@ -185,38 +189,63 @@ namespace QFramework.ProjectGungeon
 
                         if (nextRoomDirection == DoorDirections.Right)
                         {
+                            generateNode.doorDirections.Add(DoorDirections.Right); // 标记门的朝向
+
                             queue.Enqueue(new GenerateRoomNode
                             {
                                 x = generateNode.x + 1, // 在初始房间右边生成一个房间
                                 y = generateNode.y,
-                                node = roomNodeChild
+                                node = roomNodeChild,
+                                //
+                                doorDirections = new HashSet<DoorDirections>()
+                                {
+                                    DoorDirections.Left
+                                }
                             });
                         }
                         else if (nextRoomDirection == DoorDirections.Left)
                         {
+                            generateNode.doorDirections.Add(DoorDirections.Left);
+
                             queue.Enqueue(new GenerateRoomNode
                             {
                                 x = generateNode.x - 1, // 在初始房间左边生成一个房间
                                 y = generateNode.y,
-                                node = roomNodeChild
+                                node = roomNodeChild,
+                                doorDirections = new HashSet<DoorDirections>()
+                                {
+                                    DoorDirections.Right
+                                }
                             });
                         }
                         else if (nextRoomDirection == DoorDirections.Up)
                         {
+                            generateNode.doorDirections.Add(DoorDirections.Up);
+
                             queue.Enqueue(new GenerateRoomNode
                             {
                                 x = generateNode.x, // 在初始房间上面生成一个房间
                                 y = generateNode.y + 1,
-                                node = roomNodeChild
+                                node = roomNodeChild,
+                                doorDirections = new HashSet<DoorDirections>()
+                                {
+                                    DoorDirections.Down
+                                }
                             });
                         }
                         else if (nextRoomDirection == DoorDirections.Down)
                         {
+                            generateNode.doorDirections.Add(DoorDirections.Down);
+
                             queue.Enqueue(new GenerateRoomNode
                             {
                                 x = generateNode.x, // 在初始房间下面生成一个房间
                                 y = generateNode.y - 1,
-                                node = roomNodeChild
+                                node = roomNodeChild,
+                                doorDirections = new HashSet<DoorDirections>()
+                                {
+                                    DoorDirections.Up
+                                }
                             });
                         }
                     }
@@ -227,7 +256,7 @@ namespace QFramework.ProjectGungeon
 
             layoutGrid.ForEach((x, y, generateNode) =>
             {
-                GenerateRoomByNode(x, y, generateNode.node);
+                GenerateRoomByNode(x, y, generateNode);
             });
 
 
@@ -235,27 +264,27 @@ namespace QFramework.ProjectGungeon
             var currentRoomPosX = 0;
 
             // 根据节点生成房间
-            void GenerateRoomByNode(int x, int y, RoomNode node)
+            void GenerateRoomByNode(int x, int y, GenerateRoomNode node)
             {
                 var roomPosX = x * (Config.initRoom.codes.First().Length + 2);
                 var roomPosY = y * (Config.initRoom.codes.Count + 2);
 
                 // 针对一个房间
-                if (node.roomTypes == RoomTypes.InitRoom)
+                if (node.node.roomTypes == RoomTypes.InitRoom)
                 {
-                    BuildRoom(roomPosX, roomPosY, Config.initRoom);
+                    BuildRoom(roomPosX, roomPosY, Config.initRoom, node);
                 }
-                else if (node.roomTypes == RoomTypes.NormalRoom)
+                else if (node.node.roomTypes == RoomTypes.NormalRoom)
                 {
-                    BuildRoom(roomPosX, roomPosY, Config.normalRoomList.GetRandomItem());
+                    BuildRoom(roomPosX, roomPosY, Config.normalRoomList.GetRandomItem(), node);
                 }
-                else if (node.roomTypes == RoomTypes.ChestRoom)
+                else if (node.node.roomTypes == RoomTypes.ChestRoom)
                 {
-                    BuildRoom(roomPosX, roomPosY, Config.chestRoom);
+                    BuildRoom(roomPosX, roomPosY, Config.chestRoom, node);
                 }
-                else if (node.roomTypes == RoomTypes.FinalRoom)
+                else if (node.node.roomTypes == RoomTypes.FinalRoom)
                 {
-                    BuildRoom(roomPosX, roomPosY, Config.finalRoom);
+                    BuildRoom(roomPosX, roomPosY, Config.finalRoom, node);
                 }
             }
 
@@ -290,7 +319,8 @@ namespace QFramework.ProjectGungeon
             //GenerateCorridor(7); // 生成房间的数量
         }
 
-        void BuildRoom(int startRoomPosX, int startRoomPosY, RoomConfig roomConfig)
+        // 搭建房间
+        void BuildRoom(int startRoomPosX, int startRoomPosY, RoomConfig roomConfig, GenerateRoomNode node)
         {
             var roomCode = roomConfig.codes;
             var roomWidth = roomCode[0].Length; // rowCode.Length 则表示当前行的长度（地图的宽）
@@ -305,6 +335,8 @@ namespace QFramework.ProjectGungeon
                             .Position(roomPositionX, roomPositionY)
                             .WithConfig(roomConfig) // 给创建的房间加入配置信息
                             .Show();
+
+            roomScript.generateNode = node;
 
             // 设置房间感应区域，要完全覆盖住可供移动的区域（-2是为了保证主角完全进入房间）    
             roomScript.SelfBoxCollider2D.size = new Vector2(roomWidth - 2, roomHeight - 2);
@@ -343,11 +375,81 @@ namespace QFramework.ProjectGungeon
                     }
                     else if (code == 'd') // 绘制门
                     {
-                        // 获得 Door 脚本：Door 是 Room 的子节点
-                        var doorScript = Door.InstantiateWithParent(roomScript)
-                                                .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
-                                                .Hide(); // 默认门是隐藏的
-                        roomScript.AddDoor(doorScript);
+                        if (node.doorDirections.Contains(DoorDirections.Right))
+                        {
+
+                        }
+
+                        // 房间中心点到门的距离
+                        var doorDistance = new Vector2(x + 0.5f, y + 0.5f) - new Vector2(roomPositionX, roomPositionY);
+
+                        // 门在左 or 门在右
+                        if (doorDistance.x.Abs() > doorDistance.y.Abs())
+                        {
+                            if (doorDistance.x > 0) // 门在右边
+                            {
+                                if (node.doorDirections.Contains(DoorDirections.Right)) // 右方向
+                                {
+                                    // 获得 Door 脚本：Door 是 Room 的子节点
+                                    var doorScript = Door.InstantiateWithParent(roomScript)
+                                                            .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
+                                                            .Hide(); // 默认门是隐藏的
+                                    roomScript.AddDoor(doorScript);
+                                }
+                                else // 没门就绘制墙
+                                {
+                                    wallTileMap.SetTile(new Vector3Int(x, y, 0), Wall);
+                                }
+                            }
+                            else // 门在左边
+                            {
+                                if (node.doorDirections.Contains(DoorDirections.Left)) // 左方向
+                                {
+                                    // 获得 Door 脚本：Door 是 Room 的子节点
+                                    var doorScript = Door.InstantiateWithParent(roomScript)
+                                                            .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
+                                                            .Hide(); // 默认门是隐藏的
+                                    roomScript.AddDoor(doorScript);
+                                }
+                                else // 没门就绘制墙
+                                {
+                                    wallTileMap.SetTile(new Vector3Int(x, y, 0), Wall);
+                                }
+                            }
+                        }
+                        else // 门在上 or 门在下
+                        {
+                            if (doorDistance.y > 0) // 门在上
+                            {
+                                if (node.doorDirections.Contains(DoorDirections.Up)) // 上方向
+                                {
+                                    // 获得 Door 脚本：Door 是 Room 的子节点
+                                    var doorScript = Door.InstantiateWithParent(roomScript)
+                                                            .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
+                                                            .Hide(); // 默认门是隐藏的
+                                    roomScript.AddDoor(doorScript);
+                                }
+                                else // 没门就绘制墙
+                                {
+                                    wallTileMap.SetTile(new Vector3Int(x, y, 0), Wall);
+                                }
+                            }
+                            else // 门在下
+                            {
+                                if (node.doorDirections.Contains(DoorDirections.Down)) // 下方向
+                                {
+                                    // 获得 Door 脚本：Door 是 Room 的子节点
+                                    var doorScript = Door.InstantiateWithParent(roomScript)
+                                                            .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
+                                                            .Hide(); // 默认门是隐藏的
+                                    roomScript.AddDoor(doorScript);
+                                }
+                                else // 没门就绘制墙
+                                {
+                                    wallTileMap.SetTile(new Vector3Int(x, y, 0), Wall);
+                                }
+                            }
+                        }
                     }
                     else if (code == 'c') // 绘制宝箱
                     {

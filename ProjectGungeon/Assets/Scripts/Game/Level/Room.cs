@@ -12,6 +12,7 @@ namespace QFramework.ProjectGungeon
         public RoomConfig roomConfig { get; private set; } // 房间配置信息
         private HashSet<Enemy> enemiesRecords = new HashSet<Enemy>(); // 记录已经生成的敌人( HashSet 可以快速检查列表是否为null，不用像 List 一样逐个遍历)
         public RoomStates roomStates { get; set; } = RoomStates.Locked; // 房间状态默认是关闭
+        public LevelController.GenerateRoomNode generateNode { get; set; } // 让 Room 持有节点信息（节点里记录了门的方向）
 
         // 敌人波次列表
         private List<EnemyWaveConfig> enemyWaves = new List<EnemyWaveConfig>()
