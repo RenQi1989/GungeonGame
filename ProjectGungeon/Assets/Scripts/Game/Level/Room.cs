@@ -60,15 +60,6 @@ namespace QFramework.ProjectGungeon
         {
             enemyWaves.RemoveAt(0); // 移除上一波敌人(移除列表里的第一个元素)
 
-            /*foreach (var enemyGeneratePosition in enemyGeneratePositionsList)
-            {
-                var enemy = Instantiate(LevelController.Default.enemyPrefab);
-                enemy.transform.position = enemyGeneratePosition; // 敌人出现的位置就是之前生成好的位置
-                enemy.gameObject.SetActive(true);
-
-                enemiesRecords.Add(enemy);
-            }*/
-
             // Shuffle方法：随机生成敌人位置和数量
             var enemyCount = Random.Range(3, 6 + 1);
 

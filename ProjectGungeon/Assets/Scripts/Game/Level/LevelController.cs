@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using QFramework;
 using QFramework.ProjectGungeon;
 using Unity.PlasticSCM.Editor.WebApi;
 using Unity.VisualScripting;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using static RoomConfig;
@@ -102,6 +104,23 @@ namespace QFramework.ProjectGungeon
             Default = null; // 销毁单例
         }
 
+        // 生成房间节点
+        public class GenerateRoomNode
+        {
+            public RoomNode node { get; set; }
+            public int x { get; set; } // 房间节点的 XY 坐标
+            public int y { get; set; }
+        }
+
+        // 门的生成方向
+        public enum DoorDirections
+        {
+            Up,
+            Down,
+            Left,
+            Right
+        }
+
         void Start()
         {
             Room.Hide(); // 隐藏模板房间
@@ -116,38 +135,127 @@ namespace QFramework.ProjectGungeon
                     .GenerateNextRoom(RoomTypes.NormalRoom)
                     .GenerateNextRoom(RoomTypes.FinalRoom);
 
-            // 生成初始房间（初始房间在 00 位置）
+            // 网格类型的数据结构，用来生成四面房间（每个房间存在网格里，不存在的房间为null）
+            var layoutGrid = new DynaGrid<GenerateRoomNode>();
+
+            // 生成房间布局
+            void GenerateLayout(RoomNode roomNode, DynaGrid<GenerateRoomNode> layoutGrid)
+            {
+
+                // 遍历网格队列（选择广度优先，深度优先容易进死胡同）
+                var queue = new Queue<GenerateRoomNode>();
+                queue.Enqueue(new GenerateRoomNode() // 在队列里加入第一个节点
+                {
+                    x = 0,
+                    y = 0,
+                    node = roomNode // 根节点
+                });
+
+                // 判断房间生成的方向
+                while (queue.Count > 0)
+                {
+                    var generateNode = queue.Dequeue();
+                    layoutGrid[generateNode.x, generateNode.y] = generateNode;
+
+                    var availableDirection = new List<DoorDirections>();
+
+                    // 如果房间的右边是空的，就可以在右边生成房间
+                    if (layoutGrid[generateNode.x + 1, generateNode.y] == null)
+                    {
+                        availableDirection.Add(DoorDirections.Right);
+                    }
+                    if (layoutGrid[generateNode.x - 1, generateNode.y] == null)
+                    {
+                        availableDirection.Add(DoorDirections.Left);
+                    }
+                    if (layoutGrid[generateNode.x, generateNode.y + 1] == null)
+                    {
+                        availableDirection.Add(DoorDirections.Up);
+                    }
+                    if (layoutGrid[generateNode.x, generateNode.y - 1] == null)
+                    {
+                        availableDirection.Add(DoorDirections.Down);
+                    }
+
+                    // 遍历子节点，生成房间
+                    foreach (var roomNodeChild in generateNode.node.children)
+                    {
+                        // 下一个房间的方向：从可用的门方向里随机选一个
+                        var nextRoomDirection = availableDirection.GetRandomItem();
+
+                        if (nextRoomDirection == DoorDirections.Right)
+                        {
+                            queue.Enqueue(new GenerateRoomNode
+                            {
+                                x = generateNode.x + 1, // 在初始房间右边生成一个房间
+                                y = generateNode.y,
+                                node = roomNodeChild
+                            });
+                        }
+                        else if (nextRoomDirection == DoorDirections.Left)
+                        {
+                            queue.Enqueue(new GenerateRoomNode
+                            {
+                                x = generateNode.x - 1, // 在初始房间左边生成一个房间
+                                y = generateNode.y,
+                                node = roomNodeChild
+                            });
+                        }
+                        else if (nextRoomDirection == DoorDirections.Up)
+                        {
+                            queue.Enqueue(new GenerateRoomNode
+                            {
+                                x = generateNode.x, // 在初始房间上面生成一个房间
+                                y = generateNode.y + 1,
+                                node = roomNodeChild
+                            });
+                        }
+                        else if (nextRoomDirection == DoorDirections.Down)
+                        {
+                            queue.Enqueue(new GenerateRoomNode
+                            {
+                                x = generateNode.x, // 在初始房间下面生成一个房间
+                                y = generateNode.y - 1,
+                                node = roomNodeChild
+                            });
+                        }
+                    }
+                }
+            }
+
+            GenerateLayout(layout, layoutGrid);
+
+            layoutGrid.ForEach((x, y, generateNode) =>
+            {
+                GenerateRoomByNode(x, y, generateNode.node);
+            });
+
+
+            // 生成初始房间（初始房间在 0,0 位置）
             var currentRoomPosX = 0;
 
-            // 生成房间
-            void GenerateRoomByNode(RoomNode node)
+            // 根据节点生成房间
+            void GenerateRoomByNode(int x, int y, RoomNode node)
             {
+                var roomPosX = x * (Config.initRoom.codes.First().Length + 2);
+                var roomPosY = y * (Config.initRoom.codes.Count + 2);
+
                 // 针对一个房间
                 if (node.roomTypes == RoomTypes.InitRoom)
                 {
-                    BuildRoom(currentRoomPosX, Config.initRoom);
-                    currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+                    BuildRoom(roomPosX, roomPosY, Config.initRoom);
                 }
                 else if (node.roomTypes == RoomTypes.NormalRoom)
                 {
-                    BuildRoom(currentRoomPosX, Config.normalRoomList.GetRandomItem());
-                    currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+                    BuildRoom(roomPosX, roomPosY, Config.normalRoomList.GetRandomItem());
                 }
                 else if (node.roomTypes == RoomTypes.ChestRoom)
                 {
-                    BuildRoom(currentRoomPosX, Config.chestRoom);
-                    currentRoomPosX += Config.initRoom.codes.First().Length + 2;
+                    BuildRoom(roomPosX, roomPosY, Config.chestRoom);
                 }
                 else if (node.roomTypes == RoomTypes.FinalRoom)
                 {
-                    BuildRoom(currentRoomPosX, Config.finalRoom);
-                    currentRoomPosX += Config.initRoom.codes.First().Length + 2;
-                }
-
-                // 遍历每个子节点，根据子节点生成房间
-                foreach (var child in node.children)
-                {
-                    GenerateRoomByNode(child);
+                    BuildRoom(roomPosX, roomPosY, Config.finalRoom);
                 }
             }
 
@@ -179,12 +287,10 @@ namespace QFramework.ProjectGungeon
                 }
             }
 
-            GenerateRoomByNode(layout);
-            GenerateCorridor(7); // 生成房间的数量
+            //GenerateCorridor(7); // 生成房间的数量
         }
 
-
-        void BuildRoom(int startRoomPosX, RoomConfig roomConfig)
+        void BuildRoom(int startRoomPosX, int startRoomPosY, RoomConfig roomConfig)
         {
             var roomCode = roomConfig.codes;
             var roomWidth = roomCode[0].Length; // rowCode.Length 则表示当前行的长度（地图的宽）
@@ -192,7 +298,7 @@ namespace QFramework.ProjectGungeon
 
             // 房间坐标（去掉墙体，可供移动的区域）
             var roomPositionX = startRoomPosX + roomWidth * 0.5f;
-            var roomPositionY = 1.0f + roomHeight * 0.5f;
+            var roomPositionY = startRoomPosY + 1.0f + roomHeight * 0.5f;
 
             // 获得 Room脚本：Room 是 LevelController 的子节点
             var roomScript = Room.InstantiateWithParent(this)
@@ -213,7 +319,7 @@ namespace QFramework.ProjectGungeon
                 {
                     var code = rowCode[j]; // 每个行和列交叉的格子对应的字符
                     var x = startRoomPosX + j;
-                    var y = roomCode.Count - i;
+                    var y = startRoomPosY + roomCode.Count - i;
 
                     // 根据房间的字符串布局，绘制对应 tile                   
                     floorTileMap.SetTile(new Vector3Int(x, y, 0), Floor); // 绘制地板（所有格子都要绘制地板）
