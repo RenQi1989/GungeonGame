@@ -299,13 +299,13 @@ namespace QFramework.ProjectGungeon
                 // 遍历 roomGrid 里所有的房间
                 roomGrid.ForEach((x, y, room) =>
                 {
-                    foreach (var door in room.Doors)
+                    foreach (var door in room.doors)
                     {
                         // 左过道
                         if (door.direction == DoorDirections.Left)
                         {
                             var targetRoom = roomGrid[x - 1, y];
-                            var targetDoor = targetRoom.Doors.First(d => d.direction == DoorDirections.Right);
+                            var targetDoor = targetRoom.doors.First(d => d.direction == DoorDirections.Right);
 
                             // 绘制过道
                             for (int i = door.X; i <= targetDoor.X; i++)
@@ -320,7 +320,7 @@ namespace QFramework.ProjectGungeon
                         else if (door.direction == DoorDirections.Right) // 右过道
                         {
                             var targetRoom = roomGrid[x + 1, y];
-                            var targetDoor = targetRoom.Doors.First(d => d.direction == DoorDirections.Left);
+                            var targetDoor = targetRoom.doors.First(d => d.direction == DoorDirections.Left);
 
                             for (int i = door.X; i <= targetDoor.X; i++)
                             {
@@ -334,7 +334,7 @@ namespace QFramework.ProjectGungeon
                         else if (door.direction == DoorDirections.Up) // 上过道
                         {
                             var targetRoom = roomGrid[x, y + 1];
-                            var targetDoor = targetRoom.Doors.First(d => d.direction == DoorDirections.Down);
+                            var targetDoor = targetRoom.doors.First(d => d.direction == DoorDirections.Down);
 
                             for (int i = door.Y; i <= targetDoor.Y; i++)
                             {
@@ -348,7 +348,7 @@ namespace QFramework.ProjectGungeon
                         else if (door.direction == DoorDirections.Down) // 下过道
                         {
                             var targetRoom = roomGrid[x, y - 1];
-                            var targetDoor = targetRoom.Doors.First(d => d.direction == DoorDirections.Up);
+                            var targetDoor = targetRoom.doors.First(d => d.direction == DoorDirections.Up);
 
                             for (int i = door.Y; i <= targetDoor.Y; i++)
                             {
@@ -438,7 +438,7 @@ namespace QFramework.ProjectGungeon
                                     var doorScript = Door.InstantiateWithParent(roomScript)
                                                             .LocalScaleX(3) // 门拉伸到3格
                                                             .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
-                                                            .Hide(); // 默认门是隐藏的
+                                                            .Show(); // 默认门是显示的，根据状态切换开合图片
                                     doorScript.LocalRotation(Quaternion.Euler(0, 0, 90)); // 贴图旋转90度
                                     doorScript.X = x;
                                     doorScript.Y = y;
@@ -465,7 +465,7 @@ namespace QFramework.ProjectGungeon
                                     var doorScript = Door.InstantiateWithParent(roomScript)
                                                             .LocalScaleX(3)
                                                             .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
-                                                            .Hide(); // 默认门是隐藏的
+                                                            .Show();
                                     doorScript.LocalRotation(Quaternion.Euler(0, 0, 90));
                                     doorScript.X = x;
                                     doorScript.Y = y;
@@ -495,7 +495,7 @@ namespace QFramework.ProjectGungeon
                                     var doorScript = Door.InstantiateWithParent(roomScript)
                                                             .LocalScaleX(3)
                                                             .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
-                                                            .Hide(); // 默认门是隐藏的
+                                                            .Show();
                                     doorScript.X = x;
                                     doorScript.Y = y;
                                     doorScript.direction = DoorDirections.Up;
@@ -521,7 +521,7 @@ namespace QFramework.ProjectGungeon
                                     var doorScript = Door.InstantiateWithParent(roomScript)
                                                             .LocalScaleX(3)
                                                             .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
-                                                            .Hide(); // 默认门是隐藏的
+                                                            .Show();
                                     doorScript.X = x;
                                     doorScript.Y = y;
                                     doorScript.direction = DoorDirections.Down;

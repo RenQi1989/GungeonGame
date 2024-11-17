@@ -8,8 +8,8 @@ namespace QFramework.ProjectGungeon
     public partial class Room : ViewController
     {
         List<Vector3> enemyGeneratePositionsList = new List<Vector3>(); // 敌人位置列表
-        public List<Door> mDoors = new List<Door>(); // 门列表
-        public List<Door> Doors => mDoors;
+        public List<Door> doorList = new List<Door>(); // 门列表
+        public List<Door> doors => doorList;
         public RoomConfig roomConfig { get; private set; } // 房间配置信息
         private HashSet<Enemy> enemiesRecords = new HashSet<Enemy>(); // 记录已经生成的敌人( HashSet 可以快速检查列表是否为null，不用像 List 一样逐个遍历)
         public RoomStates roomStates { get; set; } = RoomStates.Locked; // 房间状态默认是关闭
@@ -46,9 +46,9 @@ namespace QFramework.ProjectGungeon
                     {
                         // 门打开
                         roomStates = RoomStates.Unlocked;
-                        foreach (var door in Doors)
+                        foreach (var door in doors)
                         {
-                            door.Hide();
+                            door.doorState.ChangeState(Door.DoorStates.Open);
                         }
                     }
                 }
@@ -122,15 +122,15 @@ namespace QFramework.ProjectGungeon
         private IEnumerator ShowDoorsWithDelay()
         {
             yield return new WaitForSeconds(0.5f); // 延迟0.5秒
-            foreach (var door in Doors)
+            foreach (var door in doors)
             {
-                door.Show();
+                door.doorState.ChangeState(Door.DoorStates.Close);
             }
         }
 
         public void AddDoor(Door door)
         {
-            Doors.Add(door);
+            doors.Add(door);
         }
 
     }
