@@ -34,25 +34,25 @@ namespace QFramework.ProjectGungeon
                                             .Type(RoomTypes.InitRoom) // 使用 RoomConfig 类的 Type 方法
 
             // 使用 RoomConfig 类的 DrawLine 方法
-            .DrawLine("11111111ddd11111111")
+            .DrawLine("111111111d111111111")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("1                 1")
-            .DrawLine("1                 1")
-            .DrawLine("1            1    1")
-            .DrawLine("1             1   1")
-            .DrawLine("1   11            1")
-            .DrawLine("d    1            d")
-            .DrawLine("d  @              d")
-            .DrawLine("d        1        d")
-            .DrawLine("1       1         1")
+            .DrawLine("1   1         1   1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
+            .DrawLine("d        @        d")
             .DrawLine("1                 1")
-            .DrawLine("11111111ddd11111111");
+            .DrawLine("1                 1")
+            .DrawLine("1                 1")
+            .DrawLine("1                 1")
+            .DrawLine("1                 1")
+            .DrawLine("1    1        1   1")
+            .DrawLine("1                 1")
+            .DrawLine("1                 1")
+            .DrawLine("111111111d111111111");
 
         // 正常房间列表
         public static List<RoomConfig> normalRoomList = new List<RoomConfig>()
@@ -60,30 +60,30 @@ namespace QFramework.ProjectGungeon
             // 样式一
             new RoomConfig().Type(RoomTypes.NormalRoom)
 
-            .DrawLine("11111111ddd11111111")
+            .DrawLine("111111111d111111111")
             .DrawLine("1                 1")
             .DrawLine("1        e        1")
-            .DrawLine("1      1   1      1")
-            .DrawLine("1        1        1")
+            .DrawLine("1     1     1     1")
+            .DrawLine("1     1     1     1")
             .DrawLine("1        e        1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("d        1        d")
-            .DrawLine("d       e e       d")
-            .DrawLine("d        1        d")
+            .DrawLine("1                 1")
+            .DrawLine("d       e1e       d")
+            .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1        e        1")
-            .DrawLine("1        1        1")
-            .DrawLine("1      1   1      1")
+            .DrawLine("1     1     1     1")
+            .DrawLine("1     1     1     1")
             .DrawLine("1        e        1")
             .DrawLine("1                 1")
-            .DrawLine("11111111ddd11111111"),
+            .DrawLine("111111111d111111111"),
 
             // 样式二
             new RoomConfig().Type(RoomTypes.NormalRoom)
 
-            .DrawLine("11111111ddd11111111")
+            .DrawLine("111111111d111111111")
             .DrawLine("1                 1")
             .DrawLine("1        e        1")
             .DrawLine("1    1       1    1")
@@ -91,9 +91,9 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("d      e 1        d")
+            .DrawLine("1      e 1        1")
             .DrawLine("d     e 1 1       d")
-            .DrawLine("d      e 1        d")
+            .DrawLine("1      e 1        1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
@@ -101,12 +101,12 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1    1       1    1")
             .DrawLine("1        e        1")
             .DrawLine("1                 1")
-            .DrawLine("11111111ddd11111111"),
+            .DrawLine("111111111d111111111"),
 
             // 样式三
             new RoomConfig().Type(RoomTypes.NormalRoom)
 
-            .DrawLine("11111111ddd11111111")
+            .DrawLine("111111111d111111111")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1  e  11          1")
@@ -114,9 +114,9 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1      11  e      1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("d        e        d")
+            .DrawLine("1        e        1")
             .DrawLine("d      e 1 e      d")
-            .DrawLine("d        e        d")
+            .DrawLine("1        e        1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1           11  e 1")
@@ -124,13 +124,13 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1       e  11     1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("11111111ddd11111111"),
+            .DrawLine("111111111d111111111"),
         };
 
         public static RoomConfig finalRoom = new RoomConfig()
                                             .Type(RoomTypes.FinalRoom)
 
-            .DrawLine("11111111ddd11111111")
+            .DrawLine("111111111d111111111")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
@@ -138,9 +138,8 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("d                 d")
+            .DrawLine("1                 1")
             .DrawLine("d        #        d")
-            .DrawLine("d                 d")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
@@ -148,12 +147,13 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("11111111ddd11111111");
+            .DrawLine("1                 1")
+            .DrawLine("111111111d111111111");
 
         public static RoomConfig chestRoom = new RoomConfig()
                                     .Type(RoomTypes.ChestRoom)
 
-            .DrawLine("11111111ddd11111111")
+            .DrawLine("111111111d111111111")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
@@ -161,9 +161,8 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("d                 d")
+            .DrawLine("1                 1")
             .DrawLine("d        c        d")
-            .DrawLine("d                 d")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
@@ -171,6 +170,7 @@ namespace QFramework.ProjectGungeon
             .DrawLine("1                 1")
             .DrawLine("1                 1")
             .DrawLine("1                 1")
-            .DrawLine("11111111ddd11111111");
+            .DrawLine("1                 1")
+            .DrawLine("111111111d111111111");
     }
 }

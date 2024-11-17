@@ -17,9 +17,9 @@ namespace QFramework.ProjectGungeon
     public partial class LevelController : ViewController
     {
         [Header("Tile Settings")]
-        public TileBase groundTile; // 管理具体地块
-        public Tilemap wallTileMap; // 管理墙壁地图
-        public Tilemap floorTileMap; // 管理地板地图
+        public TileBase groundTile; // 具体地块
+        public Tilemap wallTileMap; // 墙壁地图
+        public Tilemap floorTileMap; // 地板地图
         public TileBase wall0;
         public TileBase wall1;
         public TileBase wall2;
@@ -143,7 +143,7 @@ namespace QFramework.ProjectGungeon
             var layoutGrid = new DynaGrid<GenerateRoomNode>();
 
             // 生成房间布局
-            void GenerateLayout(RoomNode roomNode, DynaGrid<GenerateRoomNode> layoutGrid)
+            void GenerateLayoutBFS(RoomNode roomNode, DynaGrid<GenerateRoomNode> layoutGrid)
             {
                 // 遍历网格队列（选择广度优先，深度优先容易进死胡同）
                 var queue = new Queue<GenerateRoomNode>();
@@ -196,7 +196,7 @@ namespace QFramework.ProjectGungeon
                                 x = generateNode.x + 1, // 在初始房间右边生成一个房间
                                 y = generateNode.y,
                                 node = roomNodeChild,
-                                //
+
                                 doorDirections = new HashSet<DoorDirections>()
                                 {
                                     DoorDirections.Left
@@ -252,19 +252,22 @@ namespace QFramework.ProjectGungeon
                 }
             }
 
-            GenerateLayout(layout, layoutGrid);
+            GenerateLayoutBFS(layout, layoutGrid);
+
+            // 房间网格
+            var roomGrid = new DynaGrid<Room>();
 
             layoutGrid.ForEach((x, y, generateNode) =>
             {
-                GenerateRoomByNode(x, y, generateNode);
+                var room = GenerateRoomByNode(x, y, generateNode);
+                roomGrid[x, y] = room;
             });
 
-
             // 生成初始房间（初始房间在 0,0 位置）
-            var currentRoomPosX = 0;
+            //var currentRoomPosX = 0;
 
             // 根据节点生成房间
-            void GenerateRoomByNode(int x, int y, GenerateRoomNode node)
+            Room GenerateRoomByNode(int x, int y, GenerateRoomNode node)
             {
                 var roomPosX = x * (Config.initRoom.codes.First().Length + 2);
                 var roomPosY = y * (Config.initRoom.codes.Count + 2);
@@ -272,55 +275,98 @@ namespace QFramework.ProjectGungeon
                 // 针对一个房间
                 if (node.node.roomTypes == RoomTypes.InitRoom)
                 {
-                    BuildRoom(roomPosX, roomPosY, Config.initRoom, node);
+                    return BuildRoom(roomPosX, roomPosY, Config.initRoom, node);
                 }
                 else if (node.node.roomTypes == RoomTypes.NormalRoom)
                 {
-                    BuildRoom(roomPosX, roomPosY, Config.normalRoomList.GetRandomItem(), node);
+                    return BuildRoom(roomPosX, roomPosY, Config.normalRoomList.GetRandomItem(), node);
                 }
                 else if (node.node.roomTypes == RoomTypes.ChestRoom)
                 {
-                    BuildRoom(roomPosX, roomPosY, Config.chestRoom, node);
+                    return BuildRoom(roomPosX, roomPosY, Config.chestRoom, node);
                 }
                 else if (node.node.roomTypes == RoomTypes.FinalRoom)
                 {
-                    BuildRoom(roomPosX, roomPosY, Config.finalRoom, node);
+                    return BuildRoom(roomPosX, roomPosY, Config.finalRoom, node);
                 }
+
+                return null;
             }
 
             // 生成过道
-            void GenerateCorridor(int roomCount) // 参数是房间总数量
+            void GenerateCorridor()
             {
-                // 先找到门的位置，再向右遍历两个 tile 的位置
-                var roomWidth = Config.initRoom.codes.First().Length;
-                var roomHeight = Config.initRoom.codes.Count;
-
-                // 循环铺多个房间的过道
-                for (int roomIndex = 0; roomIndex < roomCount - 1; roomIndex++)
+                // 遍历 roomGrid 里所有的房间
+                roomGrid.ForEach((x, y, room) =>
                 {
-                    currentRoomPosX = roomIndex * (roomWidth + 2);
-
-                    var doorStartX = currentRoomPosX + roomWidth - 1;
-                    var doorStartY = 0 + roomHeight / 2 + 1; // (int)(roomHeight * 0.5 - 1);
-
-                    // 铺一个房间的过道
-                    for (int i = 0; i < 2; i++) // 一共遍历 2 次，每次遍历从上到下，铺 6 块砖
+                    foreach (var door in room.Doors)
                     {
-                        wallTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY + 2, 0), Wall);
-                        floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY + 1, 0), Floor);
-                        floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY, 0), Floor);
-                        floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 1, 0), Floor);
-                        floorTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 2, 0), Floor);
-                        wallTileMap.SetTile(new Vector3Int(doorStartX + i + 1, doorStartY - 3, 0), Wall);
-                    }
-                }
-            }
+                        // 左过道
+                        if (door.direction == DoorDirections.Left)
+                        {
+                            var targetRoom = roomGrid[x - 1, y];
+                            var targetDoor = targetRoom.Doors.First(d => d.direction == DoorDirections.Right);
 
-            //GenerateCorridor(7); // 生成房间的数量
+                            // 绘制过道
+                            for (int i = door.X; i <= targetDoor.X; i++)
+                            {
+                                wallTileMap.SetTile(new Vector3Int(i, door.Y + 2, 0), Wall);
+                                floorTileMap.SetTile(new Vector3Int(i, door.Y + 1, 0), Floor);
+                                floorTileMap.SetTile(new Vector3Int(i, door.Y, 0), Floor);
+                                floorTileMap.SetTile(new Vector3Int(i, door.Y - 1, 0), Floor);
+                                wallTileMap.SetTile(new Vector3Int(i, door.Y - 2, 0), Wall);
+                            }
+                        }
+                        else if (door.direction == DoorDirections.Right) // 右过道
+                        {
+                            var targetRoom = roomGrid[x + 1, y];
+                            var targetDoor = targetRoom.Doors.First(d => d.direction == DoorDirections.Left);
+
+                            for (int i = door.X; i <= targetDoor.X; i++)
+                            {
+                                wallTileMap.SetTile(new Vector3Int(i, door.Y + 2, 0), Wall);
+                                floorTileMap.SetTile(new Vector3Int(i, door.Y + 1, 0), Floor);
+                                floorTileMap.SetTile(new Vector3Int(i, door.Y, 0), Floor);
+                                floorTileMap.SetTile(new Vector3Int(i, door.Y - 1, 0), Floor);
+                                wallTileMap.SetTile(new Vector3Int(i, door.Y - 2, 0), Wall);
+                            }
+                        }
+                        else if (door.direction == DoorDirections.Up) // 上过道
+                        {
+                            var targetRoom = roomGrid[x, y + 1];
+                            var targetDoor = targetRoom.Doors.First(d => d.direction == DoorDirections.Down);
+
+                            for (int i = door.Y; i <= targetDoor.Y; i++)
+                            {
+                                wallTileMap.SetTile(new Vector3Int(door.X + 2, i, 0), Wall);
+                                floorTileMap.SetTile(new Vector3Int(door.X + 1, i, 0), Floor);
+                                floorTileMap.SetTile(new Vector3Int(door.X, i, 0), Floor);
+                                floorTileMap.SetTile(new Vector3Int(door.X - 1, i, 0), Floor);
+                                wallTileMap.SetTile(new Vector3Int(door.X - 2, i, 0), Wall);
+                            }
+                        }
+                        else if (door.direction == DoorDirections.Down) // 下过道
+                        {
+                            var targetRoom = roomGrid[x, y - 1];
+                            var targetDoor = targetRoom.Doors.First(d => d.direction == DoorDirections.Up);
+
+                            for (int i = door.Y; i <= targetDoor.Y; i++)
+                            {
+                                wallTileMap.SetTile(new Vector3Int(door.X + 2, i, 0), Wall);
+                                floorTileMap.SetTile(new Vector3Int(door.X + 1, i, 0), Floor);
+                                floorTileMap.SetTile(new Vector3Int(door.X, i, 0), Floor);
+                                floorTileMap.SetTile(new Vector3Int(door.X - 1, i, 0), Floor);
+                                wallTileMap.SetTile(new Vector3Int(door.X - 2, i, 0), Wall);
+                            }
+                        }
+                    }
+                });
+            }
+            GenerateCorridor(); // 调用生成过道的方法
         }
 
-        // 搭建房间
-        void BuildRoom(int startRoomPosX, int startRoomPosY, RoomConfig roomConfig, GenerateRoomNode node)
+        // 构建房间
+        Room BuildRoom(int startRoomPosX, int startRoomPosY, RoomConfig roomConfig, GenerateRoomNode node)
         {
             var roomCode = roomConfig.codes;
             var roomWidth = roomCode[0].Length; // rowCode.Length 则表示当前行的长度（地图的宽）
@@ -375,13 +421,11 @@ namespace QFramework.ProjectGungeon
                     }
                     else if (code == 'd') // 绘制门
                     {
-                        if (node.doorDirections.Contains(DoorDirections.Right))
-                        {
-
-                        }
-
                         // 房间中心点到门的距离
                         var doorDistance = new Vector2(x + 0.5f, y + 0.5f) - new Vector2(roomPositionX, roomPositionY);
+
+                        var cacheX = x;
+                        var cacheY = y;
 
                         // 门在左 or 门在右
                         if (doorDistance.x.Abs() > doorDistance.y.Abs())
@@ -392,9 +436,21 @@ namespace QFramework.ProjectGungeon
                                 {
                                     // 获得 Door 脚本：Door 是 Room 的子节点
                                     var doorScript = Door.InstantiateWithParent(roomScript)
+                                                            .LocalScaleX(3) // 门拉伸到3格
                                                             .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
                                                             .Hide(); // 默认门是隐藏的
+                                    doorScript.LocalRotation(Quaternion.Euler(0, 0, 90)); // 贴图旋转90度
+                                    doorScript.X = x;
+                                    doorScript.Y = y;
+                                    doorScript.direction = DoorDirections.Right; // 记录门的方向
                                     roomScript.AddDoor(doorScript);
+
+                                    ActionKit.NextFrame(() => // 等一帧后执行
+                                    {
+                                        // 把一格门扩大成三格门（抹去 d 上下两行的砖）
+                                        wallTileMap.SetTile(new Vector3Int(cacheX, cacheY - 1, 0), null);
+                                        wallTileMap.SetTile(new Vector3Int(cacheX, cacheY + 1, 0), null);
+                                    }).Start(this);
                                 }
                                 else // 没门就绘制墙
                                 {
@@ -407,9 +463,21 @@ namespace QFramework.ProjectGungeon
                                 {
                                     // 获得 Door 脚本：Door 是 Room 的子节点
                                     var doorScript = Door.InstantiateWithParent(roomScript)
+                                                            .LocalScaleX(3)
                                                             .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
                                                             .Hide(); // 默认门是隐藏的
+                                    doorScript.LocalRotation(Quaternion.Euler(0, 0, 90));
+                                    doorScript.X = x;
+                                    doorScript.Y = y;
+                                    doorScript.direction = DoorDirections.Left;
                                     roomScript.AddDoor(doorScript);
+
+                                    ActionKit.NextFrame(() => // 等一帧后执行
+                                    {
+                                        // 把一格门扩大成三格门（抹去 d 上下两行的砖）
+                                        wallTileMap.SetTile(new Vector3Int(cacheX, cacheY - 1, 0), null);
+                                        wallTileMap.SetTile(new Vector3Int(cacheX, cacheY + 1, 0), null);
+                                    }).Start(this);
                                 }
                                 else // 没门就绘制墙
                                 {
@@ -425,9 +493,20 @@ namespace QFramework.ProjectGungeon
                                 {
                                     // 获得 Door 脚本：Door 是 Room 的子节点
                                     var doorScript = Door.InstantiateWithParent(roomScript)
+                                                            .LocalScaleX(3)
                                                             .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
                                                             .Hide(); // 默认门是隐藏的
+                                    doorScript.X = x;
+                                    doorScript.Y = y;
+                                    doorScript.direction = DoorDirections.Up;
                                     roomScript.AddDoor(doorScript);
+
+                                    ActionKit.NextFrame(() => // 等一帧后执行
+                                    {
+                                        // 把一格门扩大成三格门（抹去 d 上下两行的砖）
+                                        wallTileMap.SetTile(new Vector3Int(cacheX + 1, cacheY, 0), null);
+                                        wallTileMap.SetTile(new Vector3Int(cacheX - 1, cacheY, 0), null);
+                                    }).Start(this);
                                 }
                                 else // 没门就绘制墙
                                 {
@@ -440,9 +519,20 @@ namespace QFramework.ProjectGungeon
                                 {
                                     // 获得 Door 脚本：Door 是 Room 的子节点
                                     var doorScript = Door.InstantiateWithParent(roomScript)
+                                                            .LocalScaleX(3)
                                                             .Position2D(new Vector3(x + 0.5f, y + 0.5f, 0))
                                                             .Hide(); // 默认门是隐藏的
+                                    doorScript.X = x;
+                                    doorScript.Y = y;
+                                    doorScript.direction = DoorDirections.Down;
                                     roomScript.AddDoor(doorScript);
+
+                                    ActionKit.NextFrame(() => // 等一帧后执行
+                                    {
+                                        // 把一格门扩大成三格门（抹去 d 上下两行的砖）
+                                        wallTileMap.SetTile(new Vector3Int(cacheX + 1, cacheY, 0), null);
+                                        wallTileMap.SetTile(new Vector3Int(cacheX - 1, cacheY, 0), null);
+                                    }).Start(this);
                                 }
                                 else // 没门就绘制墙
                                 {
@@ -465,6 +555,7 @@ namespace QFramework.ProjectGungeon
                     }
                 }
             }
+            return roomScript;
         }
     }
 }
