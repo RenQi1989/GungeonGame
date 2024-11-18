@@ -7,7 +7,7 @@ public class EnemyBullet : MonoBehaviour
 {
     public Vector2 direction;
     public Rigidbody2D enemyBulletRb;
-    public float speed = 5.0f;
+    public float speed = 8.5f;
 
     void Start()
     {

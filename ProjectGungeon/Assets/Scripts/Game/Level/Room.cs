@@ -14,13 +14,8 @@ namespace QFramework.ProjectGungeon
         private HashSet<Enemy> enemiesRecords = new HashSet<Enemy>(); // 记录已经生成的敌人( HashSet 可以快速检查列表是否为null，不用像 List 一样逐个遍历)
         public RoomStates roomStates { get; set; } = RoomStates.Locked; // 房间状态默认是关闭
         public LevelController.GenerateRoomNode generateNode { get; set; } // 让 Room 持有节点信息（节点里记录了门的方向）
+        private List<EnemyWaveConfig> enemyWavesList = new List<EnemyWaveConfig>(); // 敌人波次列表
 
-        // 敌人波次列表
-        private List<EnemyWaveConfig> enemyWaves = new List<EnemyWaveConfig>()
-        {
-            new EnemyWaveConfig(),
-            new EnemyWaveConfig()
-        };
 
         // 房间状态：防止玩家消灭了所有敌人后，退回原房间，门再次关上
         public enum RoomStates
@@ -40,6 +35,16 @@ namespace QFramework.ProjectGungeon
                     door.doorState.ChangeState(Door.DoorStates.DefaultOpen);
                 }
             }
+            // 初始化房间时，NormalRoom 随机生成 1 - 3 波敌人
+            else if (roomConfig.roomTypes == RoomTypes.NormalRoom)
+            {
+                var waveCount = Random.Range(1, 3 + 1);
+
+                for (int i = 0; i < waveCount; i++)
+                {
+                    enemyWavesList.Add(new EnemyWaveConfig());
+                }
+            }
         }
 
         private void Update()
@@ -50,7 +55,7 @@ namespace QFramework.ProjectGungeon
                 // 敌人记录数量为0 且 房间状态为主角已进入
                 if (enemiesRecords.Count == 0 && roomStates == RoomStates.PlayerInside)
                 {
-                    if (enemyWaves.Count > 0) // 还有剩余敌人波次
+                    if (enemyWavesList.Count > 0) // 还有剩余敌人波次
                     {
                         GenerateEnemies();
                     }
@@ -60,7 +65,7 @@ namespace QFramework.ProjectGungeon
                         roomStates = RoomStates.Unlocked;
                         foreach (var door in doors)
                         {
-                            door.doorState.ChangeState(Door.DoorStates.DefaultOpen);
+                            door.doorState.ChangeState(Door.DoorStates.Open);
                         }
                     }
                 }
@@ -72,7 +77,7 @@ namespace QFramework.ProjectGungeon
         // 生成敌人(有敌人剩余波次时才生成)
         public void GenerateEnemies()
         {
-            enemyWaves.RemoveAt(0); // 移除上一波敌人(移除列表里的第一个元素)
+            enemyWavesList.RemoveAt(0); // 移除上一波敌人(移除列表里的第一个元素)
 
             // Shuffle方法：随机生成敌人位置和数量
             var enemyCount = Random.Range(3, 6 + 1);

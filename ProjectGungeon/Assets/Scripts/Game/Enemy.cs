@@ -78,12 +78,12 @@ public class Enemy : MonoBehaviour
             if (CurrentSeconds >= 0.1f)
             {
                 state = States.FollowPlayer;
-                FollowPlayerSeconds = Random.Range(2f, 4f);
+                FollowPlayerSeconds = Random.Range(1f, 3f);
                 CurrentSeconds = 0;
             }
 
             // 射击逻辑
-            if (Time.frameCount % 20 == 0) // 每秒最多发射 3 颗子弹
+            if (Time.frameCount % 15 == 0) // 每秒最多发射 4 颗子弹
             {
                 if (CameraController.player) // 如果 player 对象存在就射击
                 {

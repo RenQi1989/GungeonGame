@@ -31,7 +31,6 @@ namespace QFramework.ProjectGungeon
             {
                 GetComponent<SpriteRenderer>().sprite = DoorOpen; // 把门的贴图设置为 开门图
                 GetComponent<BoxCollider2D>().Disable(); // 碰撞器失效
-                audioSource.Play();
             });
 
             // 在 Open 状态下
@@ -61,7 +60,7 @@ namespace QFramework.ProjectGungeon
                 audioSource.Play();
             });
 
-            doorState.StartState(DoorStates.DefaultClose); // 门的默认状态：默认关闭
+            doorState.StartState(DoorStates.DefaultClose); // 所有非 InitRoom 门的默认状态：默认关闭
         }
 
         // 门和主角的碰撞逻辑
@@ -70,7 +69,7 @@ namespace QFramework.ProjectGungeon
             // 门关闭时，如果主角碰撞门，则门开
             if (other.gameObject.GetComponent<Player>() && doorState.CurrentStateId == DoorStates.DefaultClose)
             {
-                doorState.ChangeState(DoorStates.DefaultOpen);
+                doorState.ChangeState(DoorStates.Open);
             }
         }
 
