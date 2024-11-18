@@ -10,7 +10,7 @@ namespace QFramework.ProjectGungeon
         public int X { get; set; } // 门的 XY 坐标
         public int Y { get; set; }
         public AudioSource audioSource;
-        public AudioClip openSound;
+        public AudioClip doorSound;
 
         public enum DoorStates
         {

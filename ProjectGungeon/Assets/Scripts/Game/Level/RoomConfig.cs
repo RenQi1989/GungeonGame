@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using QFramework.ProjectGungeon;
@@ -30,11 +31,13 @@ public class RoomConfig // 房间配置信息
             roomTypes = type;
         }
 
-        public RoomNode GenerateNextRoom(RoomTypes type) // 生成下一个房间
+        // 生成下一个房间(根据房间分支)
+        public RoomNode GenerateNextRoom(RoomTypes type, Action<RoomNode> branch = null)
         {
             var roomNode = new RoomNode(type);
 
             children.Add(roomNode);
+            branch?.Invoke(roomNode); // 将新增的 roomNode 传给 branch
             return roomNode;
         }
     }

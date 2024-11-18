@@ -134,16 +134,25 @@ namespace QFramework.ProjectGungeon
 
             layout.GenerateNextRoom(RoomTypes.NormalRoom)
                     .GenerateNextRoom(RoomTypes.NormalRoom)
-                    .GenerateNextRoom(RoomTypes.ChestRoom)
+                    .GenerateNextRoom(RoomTypes.ChestRoom, n =>
+                    {
+                        n.GenerateNextRoom(RoomTypes.NormalRoom)
+                            .GenerateNextRoom(RoomTypes.ChestRoom);
+                    })
                     .GenerateNextRoom(RoomTypes.NormalRoom)
                     .GenerateNextRoom(RoomTypes.NormalRoom)
+                    .GenerateNextRoom(RoomTypes.ChestRoom, n =>
+                    {
+                        n.GenerateNextRoom(RoomTypes.NormalRoom)
+                            .GenerateNextRoom(RoomTypes.ChestRoom);
+                    })
                     .GenerateNextRoom(RoomTypes.FinalRoom);
 
             // 网格类型的数据结构，用来生成四面房间（每个房间存在网格里，不存在的房间为null）
             var layoutGrid = new DynaGrid<GenerateRoomNode>();
 
-            // 生成房间布局
-            void GenerateLayoutBFS(RoomNode roomNode, DynaGrid<GenerateRoomNode> layoutGrid)
+            // 生成房间布局(predictWeight: 0 - 100, 0完全随机生成房间，100最优解生成房间)
+            bool GenerateLayoutBFS(RoomNode roomNode, DynaGrid<GenerateRoomNode> layoutGrid, int predictWeight = 0)
             {
                 // 遍历网格队列（选择广度优先，深度优先容易进死胡同）
                 var queue = new Queue<GenerateRoomNode>();
@@ -161,31 +170,44 @@ namespace QFramework.ProjectGungeon
                     var generateNode = queue.Dequeue();
                     layoutGrid[generateNode.x, generateNode.y] = generateNode;
 
-                    var availableDirection = new List<DoorDirections>();
+                    // 获取可生成房间的方向
+                    var availableDirection = LevelGenerateHelper.GetAvailableDirections(layoutGrid, generateNode.x, generateNode.y);
 
-                    // 如果房间的右边是空的，就可以在右边生成房间
-                    if (layoutGrid[generateNode.x + 1, generateNode.y] == null)
+                    // 生成失败的情况
+                    if (generateNode.node.children.Count > availableDirection.Count)
                     {
-                        availableDirection.Add(DoorDirections.Right);
+                        Debug.Log("生成房间发生冲突");
+                        return false;
                     }
-                    if (layoutGrid[generateNode.x - 1, generateNode.y] == null)
+
+                    // 获取预测的可生成房间的方向和对应数量
+                    var directions = LevelGenerateHelper.PredictDirection(layoutGrid, generateNode.x, generateNode.y);
+                    // 将可生成房间的方向对应的数量，从大到小排序
+                    directions.Sort((a, b) => b.count - a.count);
+
+                    // 预测值的真假 
+                    var predictGenerate = false;
+                    if (UnityEngine.Random.Range(0, 100) < predictWeight)
                     {
-                        availableDirection.Add(DoorDirections.Left);
+                        // 按照最优解生成
+                        predictGenerate = true;
                     }
-                    if (layoutGrid[generateNode.x, generateNode.y + 1] == null)
+                    else
                     {
-                        availableDirection.Add(DoorDirections.Up);
-                    }
-                    if (layoutGrid[generateNode.x, generateNode.y - 1] == null)
-                    {
-                        availableDirection.Add(DoorDirections.Down);
+                        // 完全随机生成
+                        predictGenerate = false;
                     }
 
                     // 遍历子节点，生成房间
                     foreach (var roomNodeChild in generateNode.node.children)
                     {
-                        // 下一个房间的方向：从可用的门方向里随机选一个
-                        var nextRoomDirection = availableDirection.GetRandomItem();
+                        // 下一个房间的方向（如果有预测值真假，选择从最佳解里生成，还是从可用方向里随机生成）
+                        var nextRoomDirection = predictGenerate ? directions.First().direction : availableDirection.GetAndRemoveRandomItem();
+                        if (predictGenerate) // 如果有预测值
+                        {
+                            // 把列表里的第一个元素去掉
+                            directions.RemoveAt(0);
+                        }
 
                         if (nextRoomDirection == DoorDirections.Right)
                         {
@@ -250,21 +272,26 @@ namespace QFramework.ProjectGungeon
                         }
                     }
                 }
+                return true; // 生成房间逻辑跑通
             }
 
-            GenerateLayoutBFS(layout, layoutGrid);
+            var predictWeight = 0; // 预测房间方向的权重
+            // 循环生成房间，失败了就增加一点预测权重，从完全随机生成，逐渐逼近最佳生成
+            print("predictWeight:" + predictWeight);
+            while (!GenerateLayoutBFS(layout, layoutGrid, predictWeight))
+            {
+                Debug.Log("因为冲突，所以重新生成了");
+                predictWeight++;
+                layoutGrid.Clear();
+            }
 
             // 房间网格
             var roomGrid = new DynaGrid<Room>();
-
             layoutGrid.ForEach((x, y, generateNode) =>
             {
                 var room = GenerateRoomByNode(x, y, generateNode);
                 roomGrid[x, y] = room;
             });
-
-            // 生成初始房间（初始房间在 0,0 位置）
-            //var currentRoomPosX = 0;
 
             // 根据节点生成房间
             Room GenerateRoomByNode(int x, int y, GenerateRoomNode node)
