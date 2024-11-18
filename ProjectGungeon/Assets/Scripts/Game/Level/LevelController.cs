@@ -168,12 +168,22 @@ namespace QFramework.ProjectGungeon
                 while (queue.Count > 0)
                 {
                     var generateNode = queue.Dequeue();
-                    layoutGrid[generateNode.x, generateNode.y] = generateNode;
+
+                    // 生成失败的情况 1
+                    if (layoutGrid[generateNode.x, generateNode.y] == null)
+                    {
+                        layoutGrid[generateNode.x, generateNode.y] = generateNode;
+                    }
+                    else
+                    {
+                        Debug.Log("生成房间发生冲突");
+                        return false;
+                    }
 
                     // 获取可生成房间的方向
                     var availableDirection = LevelGenerateHelper.GetAvailableDirections(layoutGrid, generateNode.x, generateNode.y);
 
-                    // 生成失败的情况
+                    // 生成失败的情况 2
                     if (generateNode.node.children.Count > availableDirection.Count)
                     {
                         Debug.Log("生成房间发生冲突");

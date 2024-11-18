@@ -4320,7 +4320,7 @@ MonoBehaviour:
   ArchitectureFullTypeName: 
   ViewControllerFullTypeName: 
   audioSource: {fileID: 1373436727}
-  openSound: {fileID: 8300000, guid: 294d5991693eb482988d9da26efbe47a, type: 3}
+  doorSound: {fileID: 0}
   DoorClose: {fileID: 21300000, guid: 17ed518bbe67b44f484cc47f943c8aeb, type: 3}
   DoorOpen: {fileID: 21300000, guid: bd43f839a56f24477bf0367c19cc185d, type: 3}
 --- !u!114 &1373436723
@@ -5107,7 +5107,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: f7e13631cf01e4eb9993e9845df58307, type: 3}
-  m_PlayOnAwake: 0
+  m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

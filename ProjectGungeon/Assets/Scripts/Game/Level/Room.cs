@@ -30,6 +30,18 @@ namespace QFramework.ProjectGungeon
             Unlocked
         }
 
+        private void Start()
+        {
+            // 初始化房间时，InitRoom 的门默认是开的
+            if (roomConfig.roomTypes == RoomTypes.InitRoom)
+            {
+                foreach (var door in doorList)
+                {
+                    door.doorState.ChangeState(Door.DoorStates.DefaultOpen);
+                }
+            }
+        }
+
         private void Update()
         {
             // 每 30 帧判断一次房间里的敌人是否被清空
@@ -48,7 +60,7 @@ namespace QFramework.ProjectGungeon
                         roomStates = RoomStates.Unlocked;
                         foreach (var door in doors)
                         {
-                            door.doorState.ChangeState(Door.DoorStates.Open);
+                            door.doorState.ChangeState(Door.DoorStates.DefaultOpen);
                         }
                     }
                 }
@@ -124,7 +136,7 @@ namespace QFramework.ProjectGungeon
             yield return new WaitForSeconds(0.5f); // 延迟0.5秒
             foreach (var door in doors)
             {
-                door.doorState.ChangeState(Door.DoorStates.Close);
+                door.doorState.ChangeState(Door.DoorStates.BattleClose);
             }
         }
 
