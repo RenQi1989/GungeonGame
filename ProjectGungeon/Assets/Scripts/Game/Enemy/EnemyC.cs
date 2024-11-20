@@ -1,13 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using QFramework;
-using QFramework.ProjectGungeon;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace QFramework.ProjectGungeon
 {
-    public class EnemyB : MonoBehaviour, IEnemy // 一次发射扇形的三颗子弹
+    public class EnemyC : MonoBehaviour, IEnemy // 连续发射三颗子弹
     {
         [Header("Enemy Settings")]
         public EnemyBullet enemyBulletPrefab;
@@ -73,7 +70,7 @@ namespace QFramework.ProjectGungeon
                     }
                 });
 
-            // 当状态是 射击 时 
+            // 当状态是 射击 时
             state.State(States.Shoot)
                 .OnEnter(() =>
                 {
@@ -86,7 +83,7 @@ namespace QFramework.ProjectGungeon
                     CurrentSeconds += Time.deltaTime; // 时间累积
 
                     // 每 1 秒发射子弹
-                    if (CurrentSeconds >= 3.0f)
+                    if (CurrentSeconds >= 1.0f)
                     {
                         CurrentSeconds = 0;
 
@@ -94,27 +91,37 @@ namespace QFramework.ProjectGungeon
                         {
                             var directionToPlayer = (CameraController.player.transform.position - this.transform.position).normalized;
 
-                            var count = 3; // 每次发射子弹数量 3
-                            var durationAngle = 15; // 子弹之间的夹角 15 度
-
-                            // 主弹道角度：发射向主角的三维向量转成二维向量，再转换成欧拉角
-                            var mainAngle = directionToPlayer.ToVector2().ToAngle();
-
-                            for (int i = 0; i < count; i++)
+                            ActionKit.Sequence() // 子弹发射顺序
+                            .Callback(() =>
                             {
-                                Debug.Log("我要发射3颗子弹");
-
                                 // 发射子弹
-                                var angle = mainAngle + i * durationAngle - count * durationAngle * 0.5f;
-                                var shootDirection = angle.AngleToDirection2D(); // 角度转方向
-                                var shootPosition = transform.Position2D() + 0.5f * shootDirection;
-
+                                var shootPosition = this.transform.position;
                                 var enemyBullet = Instantiate(enemyBulletPrefab);
-                                enemyBullet.velocity = shootDirection * 5; // 5 是射击速度
+                                enemyBullet.velocity = directionToPlayer * 5; // 5 是射击速度
                                 enemyBullet.transform.position = shootPosition;
                                 enemyBullet.gameObject.SetActive(true);
-
-                            }
+                            })
+                            .Delay(0.3f)
+                            .Callback(() =>
+                            {
+                                // 发射子弹
+                                var shootPosition = this.transform.position;
+                                var enemyBullet = Instantiate(enemyBulletPrefab);
+                                enemyBullet.velocity = directionToPlayer * 5; // 5 是射击速度
+                                enemyBullet.transform.position = shootPosition;
+                                enemyBullet.gameObject.SetActive(true);
+                            })
+                            .Delay(0.3f)
+                            .Callback(() =>
+                            {
+                                // 发射子弹
+                                var shootPosition = this.transform.position;
+                                var enemyBullet = Instantiate(enemyBulletPrefab);
+                                enemyBullet.velocity = directionToPlayer * 5; // 5 是射击速度
+                                enemyBullet.transform.position = shootPosition;
+                                enemyBullet.gameObject.SetActive(true);
+                            })
+                            .Start(this);
 
                             // 播放随机射击音效
                             var soundsIndex = Random.Range(0, shootSounds.Count);

@@ -19,20 +19,7 @@ public class PlayerBullet : MonoBehaviour
         playerBulletRb.velocity = velocity;
     }
 
-    // 碰撞检测
-    /* private void OnCollisionEnter2D(Collision2D other)
-    {
-        var enemy = other.gameObject.GetComponent<Enemy>(); // 使用挂载的脚本是不是Enemy判断
-        if (enemy)
-        {
-            enemy.Hurt(gunDamage);
-            Destroy(gameObject); // 销毁主角子弹
-        }
-        else // 碰到其他东西(比如墙体)，销毁主角子弹
-        {
-            Destroy(gameObject);
-        }
-    } */
+    /// 碰撞检测
     private void OnCollisionEnter2D(Collision2D other)
     {
         var enemy = other.gameObject.GetComponent<IEnemy>();

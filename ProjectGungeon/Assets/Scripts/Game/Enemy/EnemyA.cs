@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 using UnityEditor.Rendering;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, IEnemy
+public class Enemy : MonoBehaviour, IEnemy // 一次发射一颗子弹
 {
     [Header("Enemy Settings")]
     public EnemyBullet enemyBulletPrefab;
@@ -72,7 +72,7 @@ public class Enemy : MonoBehaviour, IEnemy
                 }
             });
 
-        // 当状态是 射击 时    
+        // 当状态是 射击 时
         state.State(States.Shoot)
             .OnEnter(() =>
             {
@@ -104,6 +104,7 @@ public class Enemy : MonoBehaviour, IEnemy
                         shootSoundPlayer.Play();
                     }
                 }
+
                 // 射击状态持续 1 秒后切换回跟随
                 if (state.SecondsOfCurrentState >= 1.0f)
                 {

@@ -1,13 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using QFramework;
-using QFramework.ProjectGungeon;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace QFramework.ProjectGungeon
 {
-    public class EnemyB : MonoBehaviour, IEnemy // 一次发射扇形的三颗子弹
+    public class EnemyE : MonoBehaviour, IEnemy // 一秒发射5颗子弹
     {
         [Header("Enemy Settings")]
         public EnemyBullet enemyBulletPrefab;
@@ -15,6 +12,13 @@ namespace QFramework.ProjectGungeon
         public Rigidbody2D enemyRb;
         public float speed = 1.0f;
         public int HP = 3;
+
+        [Header("Shoot Settings")]
+        private float fireTimer = 0; // 子弹发射计时器
+        private float fireInterval = 0.2f; // 每颗子弹的时间间隔
+        private int bulletsFired = 0; // 当前轮次已发射的子弹数量
+        private int bulletsPerRound = 5; // 每次发射的子弹数量
+        private float roundCoolDown; // 每轮次之间的随机间隔时间
 
         [Header("Audio Settings")]
         public List<AudioClip> shootSounds = new List<AudioClip>();
@@ -30,7 +34,6 @@ namespace QFramework.ProjectGungeon
         // 敌人状态机
         public FSM<States> state = new FSM<States>();
         public float FollowPlayerSeconds = 3.0f; // 敌人跟随玩家时间，默认 2 秒
-        public float CurrentSeconds = 0; // 用来计时
 
         // 实现接口的属性
         public GameObject GameObject => gameObject;
@@ -73,48 +76,40 @@ namespace QFramework.ProjectGungeon
                     }
                 });
 
-            // 当状态是 射击 时 
+            // 当状态是 射击 时
+            var shootStateDuration = Random.Range(1, 6);
+
             state.State(States.Shoot)
                 .OnEnter(() =>
                 {
                     Debug.Log("进入射击状态");
                     enemyRb.velocity = Vector2.zero; // 敌人射击时禁止位移
-                    CurrentSeconds = 0; // 初始化计时器
+
+                    fireTimer = 0; // 重置发射计时器
+                    bulletsFired = 0; // 重置发射数量
+                    roundCoolDown = Random.Range(3f, 6f); // 设置随机轮次间隔
+
                 })
                 .OnUpdate(() =>
                 {
-                    CurrentSeconds += Time.deltaTime; // 时间累积
 
-                    // 每 1 秒发射子弹
-                    if (CurrentSeconds >= 3.0f)
+                    fireTimer += Time.deltaTime;
+
+                    // 每轮次发射 5 颗子弹，轮次之间的间隔 3 - 6 秒随机
+                    if (bulletsFired < bulletsPerRound && fireTimer >= fireInterval)
                     {
-                        CurrentSeconds = 0;
+                        fireTimer = 0; // 重置计时器
+                        bulletsFired++; // 增加已发射子弹数量
 
                         if (CameraController.player)
                         {
                             var directionToPlayer = (CameraController.player.transform.position - this.transform.position).normalized;
 
-                            var count = 3; // 每次发射子弹数量 3
-                            var durationAngle = 15; // 子弹之间的夹角 15 度
-
-                            // 主弹道角度：发射向主角的三维向量转成二维向量，再转换成欧拉角
-                            var mainAngle = directionToPlayer.ToVector2().ToAngle();
-
-                            for (int i = 0; i < count; i++)
-                            {
-                                Debug.Log("我要发射3颗子弹");
-
-                                // 发射子弹
-                                var angle = mainAngle + i * durationAngle - count * durationAngle * 0.5f;
-                                var shootDirection = angle.AngleToDirection2D(); // 角度转方向
-                                var shootPosition = transform.Position2D() + 0.5f * shootDirection;
-
-                                var enemyBullet = Instantiate(enemyBulletPrefab);
-                                enemyBullet.velocity = shootDirection * 5; // 5 是射击速度
-                                enemyBullet.transform.position = shootPosition;
-                                enemyBullet.gameObject.SetActive(true);
-
-                            }
+                            // 发射子弹
+                            var enemyBullet = Instantiate(enemyBulletPrefab);
+                            enemyBullet.velocity = directionToPlayer * 5; // 5 是射击速度
+                            enemyBullet.transform.position = this.transform.position;
+                            enemyBullet.gameObject.SetActive(true);
 
                             // 播放随机射击音效
                             var soundsIndex = Random.Range(0, shootSounds.Count);
@@ -123,8 +118,8 @@ namespace QFramework.ProjectGungeon
                         }
                     }
 
-                    // 射击状态持续 1 秒后切换回跟随
-                    if (state.SecondsOfCurrentState >= 1.0f)
+                    // 射击状态持续随机秒后切换回跟随
+                    if (bulletsFired >= bulletsPerRound && state.SecondsOfCurrentState >= roundCoolDown)
                     {
                         state.ChangeState(States.FollowPlayer);
                         FollowPlayerSeconds = Random.Range(2f, 5f); // 动态调整跟随时间

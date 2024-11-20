@@ -2013,9 +2013,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ec85867b6f34814ad071c3cb5ba087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
   enemyBulletRb: {fileID: 350867834}
-  speed: 5
 --- !u!212 &350867837
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2177,9 +2176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ec85867b6f34814ad071c3cb5ba087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
   enemyBulletRb: {fileID: 369065275}
-  speed: 5
 --- !u!212 &369065278
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2952,9 +2950,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ec85867b6f34814ad071c3cb5ba087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
   enemyBulletRb: {fileID: 590558544}
-  speed: 5
 --- !u!212 &590558547
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3531,9 +3528,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ec85867b6f34814ad071c3cb5ba087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
   enemyBulletRb: {fileID: 748482008}
-  speed: 5
 --- !u!212 &748482011
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3618,9 +3614,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ec85867b6f34814ad071c3cb5ba087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
   enemyBulletRb: {fileID: 757237053}
-  speed: 5
 --- !u!212 &757237050
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4349,9 +4344,6 @@ MonoBehaviour:
   floor2: {fileID: 11400000, guid: aefd7ea1dfe4c46b8aa497f2aff7f92a, type: 2}
   floor3: {fileID: 11400000, guid: d2fa3c0e9c7c348e0adede3812e7c04d, type: 2}
   playerPrefab: {fileID: 1607377536}
-  enemyPrefab: {fileID: 932346181}
-  enemyAPrefab: {fileID: 1207979108}
-  enemyBPrefab: {fileID: 932346181}
   finalDoorPrefab: {fileID: 156284579}
   chestPrefab: {fileID: 1516698606}
   Room: {fileID: 1920813902}
@@ -4837,7 +4829,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 935104824}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18b6e6d6c75be4d3aa5bb2d33ac58f5e, type: 3}
+  m_Script: {fileID: 11500000, guid: 7b56ceb9dca83456b9df75b20d4347e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enemyBulletPrefab: {fileID: 369065277}
@@ -5256,9 +5248,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ec85867b6f34814ad071c3cb5ba087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
   enemyBulletRb: {fileID: 1074519934}
-  speed: 5
 --- !u!212 &1074519937
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5925,9 +5916,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ec85867b6f34814ad071c3cb5ba087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
   enemyBulletRb: {fileID: 1188857779}
-  speed: 5
 --- !u!212 &1188857782
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -6563,7 +6553,7 @@ GameObject:
   - component: {fileID: 1373436727}
   m_Layer: 0
   m_Name: Door
-  m_TagString: Untagged
+  m_TagString: Door
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7964,9 +7954,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ec85867b6f34814ad071c3cb5ba087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  direction: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
   enemyBulletRb: {fileID: 1831470987}
-  speed: 5
 --- !u!212 &1831470990
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -9176,7 +9165,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2047959145}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18b6e6d6c75be4d3aa5bb2d33ac58f5e, type: 3}
+  m_Script: {fileID: 11500000, guid: b2b2fc99f576b4a8aaa1ab5c08e8149d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enemyBulletPrefab: {fileID: 350867836}
@@ -9721,7 +9710,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2097107809}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18b6e6d6c75be4d3aa5bb2d33ac58f5e, type: 3}
+  m_Script: {fileID: 11500000, guid: 107513bfdd1004398b97f44d027ba03c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enemyBulletPrefab: {fileID: 1188857781}
@@ -9735,7 +9724,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: dfb7b28cbe5f24501945546f903c6a30, type: 3}
   shootSoundPlayer: {fileID: 2097107811}
   FollowPlayerSeconds: 3
-  CurrentSeconds: 0
 --- !u!212 &864264180426876538
 SpriteRenderer:
   m_ObjectHideFlags: 0

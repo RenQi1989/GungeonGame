@@ -31,7 +31,7 @@ namespace QFramework.ProjectGungeon
 
         [Header("Character Settings")]
         public Player playerPrefab;
-        public IEnemy enemyPrefab => EnemyB.GetComponent<IEnemy>(); // 把测试的敌人类型改成：敌人B
+        public IEnemy enemyPrefab => EnemyE.GetComponent<IEnemy>(); // 把测试的敌人类型改成：敌人B
         public FinalDoor finalDoorPrefab;
         public Chest chestPrefab;
 
