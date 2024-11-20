@@ -5,9 +5,8 @@ using UnityEngine;
 
 public class EnemyBullet : MonoBehaviour
 {
-    public Vector2 direction;
+    public Vector2 velocity;
     public Rigidbody2D enemyBulletRb;
-    public float speed = 8.5f;
 
     void Start()
     {
@@ -17,7 +16,7 @@ public class EnemyBullet : MonoBehaviour
     void FixedUpdate()
     {
         // 敌人子弹移动
-        enemyBulletRb.velocity = direction * speed;
+        enemyBulletRb.velocity = velocity;
     }
 
     // 碰撞检测（敌人子弹碰撞到主角）

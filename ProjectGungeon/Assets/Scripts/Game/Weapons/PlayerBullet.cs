@@ -20,7 +20,7 @@ public class PlayerBullet : MonoBehaviour
     }
 
     // 碰撞检测
-    private void OnCollisionEnter2D(Collision2D other)
+    /* private void OnCollisionEnter2D(Collision2D other)
     {
         var enemy = other.gameObject.GetComponent<Enemy>(); // 使用挂载的脚本是不是Enemy判断
         if (enemy)
@@ -32,5 +32,15 @@ public class PlayerBullet : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    } */
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        var enemy = other.gameObject.GetComponent<IEnemy>();
+        if (enemy != null)
+        {
+            enemy.Hurt(gunDamage);
+        }
+        // 确保子弹立即销毁
+        Destroy(gameObject);
     }
 }

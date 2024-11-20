@@ -11,7 +11,7 @@ namespace QFramework.ProjectGungeon
         public List<Door> doorList = new List<Door>(); // 门列表
         public List<Door> doors => doorList;
         public RoomConfig roomConfig { get; private set; } // 房间配置信息
-        private HashSet<Enemy> enemiesRecords = new HashSet<Enemy>(); // 记录已经生成的敌人( HashSet 可以快速检查列表是否为null，不用像 List 一样逐个遍历)
+        private HashSet<IEnemy> enemiesRecords = new HashSet<IEnemy>(); // 记录已经生成的敌人( HashSet 可以快速检查列表是否为null，不用像 List 一样逐个遍历)
         public RoomStates roomStates { get; set; } = RoomStates.Locked; // 房间状态默认是关闭
         public LevelController.GenerateRoomNode generateNode { get; set; } // 让 Room 持有节点信息（节点里记录了门的方向）
         private List<EnemyWaveConfig> enemyWavesList = new List<EnemyWaveConfig>(); // 敌人波次列表
@@ -70,12 +70,12 @@ namespace QFramework.ProjectGungeon
                     }
                 }
                 // 从 enemiesRecords 中【批量删除】所有 null 或已销毁的对象
-                enemiesRecords.RemoveWhere(e => !e);
+                enemiesRecords.RemoveWhere(e => !e.gameObject);
             }
         }
 
         // 生成敌人(有敌人剩余波次时才生成)
-        public void GenerateEnemies()
+        void GenerateEnemies()
         {
             enemyWavesList.RemoveAt(0); // 移除上一波敌人(移除列表里的第一个元素)
 
@@ -86,12 +86,21 @@ namespace QFramework.ProjectGungeon
 
             for (int i = 0; i < enemyCount && i < enemyGeneratePositionsList.Count; i++)
             {
-                var enemy = Instantiate(LevelController.Default.enemyPrefab);
-                enemy.transform.position = enemyGeneratePositionsList[i]; // 敌人出现的位置按随机分配
-                enemy.gameObject.SetActive(true);
+                var enemyGameObj = Instantiate(LevelController.Default.enemyPrefab.gameObject);
+                var enemy = enemyGameObj.GetComponent<IEnemy>();
+                enemyGameObj.transform.position = enemyGeneratePositionsList[i]; // 敌人出现的位置按随机分配
+                enemyGameObj.gameObject.SetActive(true);
+
+                enemy.room = this; // 敌人和房间绑定
 
                 enemiesRecords.Add(enemy);
             }
+        }
+
+        // 从敌人生成列表里移除敌人
+        public void RemoveEnemy(IEnemy enemy)
+        {
+            enemiesRecords.Remove(enemy);
         }
 
         // Shuffle API

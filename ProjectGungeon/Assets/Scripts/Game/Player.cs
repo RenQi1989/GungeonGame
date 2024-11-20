@@ -99,16 +99,6 @@ public partial class Player : MonoBehaviour
         var vertical = Input.GetAxisRaw("Vertical"); // vertical大于0是向上走，小于0是向下走
         playerRb.velocity = new UnityEngine.Vector2(horizontal, vertical).normalized * speed; // normalized 斜着移动的速度也为 1
 
-        /* 主角翻转
-		if (horizontal < 0)
-		{
-			playerSprite.flipX = true; // 水平镜像翻转(所以不使用 flipY)
-		}
-		else if (horizontal > 0)
-		{
-			playerSprite.flipX = false;
-		} */
-
         // 武器射击和枪口旋转
         // 1. 射击：射击方向是鼠标点击的方向
         var mouseScreenPosition = Input.mousePosition;
