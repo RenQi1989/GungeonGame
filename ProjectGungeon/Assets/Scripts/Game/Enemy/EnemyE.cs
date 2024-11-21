@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace QFramework.ProjectGungeon
 {
-    public class EnemyE : MonoBehaviour, IEnemy // 一秒发射5颗子弹
+    public class EnemyE : MonoBehaviour, IEnemy // 一秒发射3颗子弹
     {
         [Header("Enemy Settings")]
         public EnemyBullet enemyBulletPrefab;
@@ -15,9 +15,9 @@ namespace QFramework.ProjectGungeon
 
         [Header("Shoot Settings")]
         private float fireTimer = 0; // 子弹发射计时器
-        private float fireInterval = 0.2f; // 每颗子弹的时间间隔
+        private float fireInterval = 0.3f; // 每颗子弹的时间间隔
         private int bulletsFired = 0; // 当前轮次已发射的子弹数量
-        private int bulletsPerRound = 5; // 每次发射的子弹数量
+        private int bulletsPerRound = 3; // 每次发射的子弹数量
         private float roundCoolDown; // 每轮次之间的随机间隔时间
 
         [Header("Audio Settings")]
@@ -87,7 +87,7 @@ namespace QFramework.ProjectGungeon
 
                     fireTimer = 0; // 重置发射计时器
                     bulletsFired = 0; // 重置发射数量
-                    roundCoolDown = Random.Range(3f, 6f); // 设置随机轮次间隔
+                    roundCoolDown = Random.Range(4f, 9f); // 设置随机轮次间隔
 
                 })
                 .OnUpdate(() =>

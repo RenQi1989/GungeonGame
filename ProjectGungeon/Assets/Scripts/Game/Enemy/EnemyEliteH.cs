@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace QFramework.ProjectGungeon
 {
-    public class EnemyD : MonoBehaviour, IEnemy // 环形发射多颗子弹
+    public class EnemyEliteH : MonoBehaviour, IEnemy
     {
         [Header("Enemy Settings")]
         public EnemyBullet enemyBulletPrefab;
         public SpriteRenderer enemySprite;
         public Rigidbody2D enemyRb;
         public float speed = 1.0f;
-        public int HP = 3;
+        public int HP = 10;
 
         [Header("Audio Settings")]
         public List<AudioClip> shootSounds = new List<AudioClip>();

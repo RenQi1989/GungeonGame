@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace QFramework.ProjectGungeon
 {
-    public class EnemyD : MonoBehaviour, IEnemy // 环形发射多颗子弹
+    public class EnemyEliteG : MonoBehaviour, IEnemy // 精英怪，射击方式同敌人B
     {
         [Header("Enemy Settings")]
         public EnemyBullet enemyBulletPrefab;
         public SpriteRenderer enemySprite;
         public Rigidbody2D enemyRb;
         public float speed = 1.0f;
-        public int HP = 3;
+        public int HP = 10;
 
         [Header("Audio Settings")]
         public List<AudioClip> shootSounds = new List<AudioClip>();
@@ -83,29 +83,34 @@ namespace QFramework.ProjectGungeon
                     CurrentSeconds += Time.deltaTime; // 时间累积
 
                     // 每 1 秒发射子弹
-                    if (CurrentSeconds >= 1.0f)
+                    if (CurrentSeconds >= 3.0f)
                     {
                         CurrentSeconds = 0;
 
                         if (CameraController.player)
                         {
-                            var count = 9; // 每次发射子弹数量 18
-                            var durationAngle = 360 / count; // 子弹间隔角度
+                            var directionToPlayer = (CameraController.player.transform.position - this.transform.position).normalized;
 
-                            // 随机角度偏移值
-                            var angleOffset = Random.Range(0, 360);
+                            var count = 3; // 每次发射子弹数量 3
+                            var durationAngle = 15; // 子弹之间的夹角 15 度
+
+                            // 主弹道角度：发射向主角的三维向量转成二维向量，再转换成欧拉角
+                            var mainAngle = directionToPlayer.ToVector2().ToAngle();
 
                             for (int i = 0; i < count; i++)
                             {
+                                Debug.Log("我要发射3颗子弹");
+
                                 // 发射子弹
-                                var angle = angleOffset + i * durationAngle;
+                                var angle = mainAngle + i * durationAngle - count * durationAngle * 0.5f;
                                 var shootDirection = angle.AngleToDirection2D(); // 角度转方向
                                 var shootPosition = transform.Position2D() + 0.5f * shootDirection;
 
                                 var enemyBullet = Instantiate(enemyBulletPrefab);
-                                enemyBullet.velocity = shootDirection * 2; // 5 是射击速度
+                                enemyBullet.velocity = shootDirection * 5; // 5 是射击速度
                                 enemyBullet.transform.position = shootPosition;
                                 enemyBullet.gameObject.SetActive(true);
+
                             }
 
                             // 播放随机射击音效

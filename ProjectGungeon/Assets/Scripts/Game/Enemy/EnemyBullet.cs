@@ -8,15 +8,10 @@ public class EnemyBullet : MonoBehaviour
     public Vector2 velocity;
     public Rigidbody2D enemyBulletRb;
 
-    void Start()
-    {
-
-    }
-
     void FixedUpdate()
     {
         // 敌人子弹移动
-        enemyBulletRb.velocity = velocity;
+        enemyBulletRb.velocity = velocity * 2;
     }
 
     // 碰撞检测（敌人子弹碰撞到主角）

@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace QFramework.ProjectGungeon
 {
-    public class EnemyD : MonoBehaviour, IEnemy // 环形发射多颗子弹
+    public class EnemyEliteF : MonoBehaviour, IEnemy // 精英怪，射击方式同敌人A
     {
         [Header("Enemy Settings")]
         public EnemyBullet enemyBulletPrefab;
         public SpriteRenderer enemySprite;
         public Rigidbody2D enemyRb;
         public float speed = 1.0f;
-        public int HP = 3;
+        public int HP = 10;
 
         [Header("Audio Settings")]
         public List<AudioClip> shootSounds = new List<AudioClip>();
@@ -70,7 +70,7 @@ namespace QFramework.ProjectGungeon
                     }
                 });
 
-            // 当状态是 射击 时 
+            // 当状态是 射击 时
             state.State(States.Shoot)
                 .OnEnter(() =>
                 {
@@ -82,31 +82,19 @@ namespace QFramework.ProjectGungeon
                 {
                     CurrentSeconds += Time.deltaTime; // 时间累积
 
-                    // 每 1 秒发射子弹
+                    // 每 1 秒发射一颗子弹
                     if (CurrentSeconds >= 1.0f)
                     {
                         CurrentSeconds = 0;
 
                         if (CameraController.player)
                         {
-                            var count = 9; // 每次发射子弹数量 18
-                            var durationAngle = 360 / count; // 子弹间隔角度
+                            var directionToPlayer = (CameraController.player.transform.position - this.transform.position).normalized;
 
-                            // 随机角度偏移值
-                            var angleOffset = Random.Range(0, 360);
-
-                            for (int i = 0; i < count; i++)
-                            {
-                                // 发射子弹
-                                var angle = angleOffset + i * durationAngle;
-                                var shootDirection = angle.AngleToDirection2D(); // 角度转方向
-                                var shootPosition = transform.Position2D() + 0.5f * shootDirection;
-
-                                var enemyBullet = Instantiate(enemyBulletPrefab);
-                                enemyBullet.velocity = shootDirection * 2; // 5 是射击速度
-                                enemyBullet.transform.position = shootPosition;
-                                enemyBullet.gameObject.SetActive(true);
-                            }
+                            var enemyBullet = Instantiate(enemyBulletPrefab);
+                            enemyBullet.velocity = directionToPlayer * 2;
+                            enemyBullet.transform.position = this.transform.position;
+                            enemyBullet.gameObject.SetActive(true);
 
                             // 播放随机射击音效
                             var soundsIndex = Random.Range(0, shootSounds.Count);
@@ -148,13 +136,17 @@ namespace QFramework.ProjectGungeon
         }
         void IEnemy.Hurt(int damage)
         {
-            Hurt(damage); // 调用类内部的公共 Hurt 方法
+            Hurt(damage); // 调用类内部的 Hurt 方法
         }
 
-        // 销毁敌人
+        // 敌人销毁
         private void OnDestroy()
         {
-            room.RemoveEnemy(this); // 调用 Room 类的 RemoveEnemy 方法
+            // 确保 room 不为空后再移除
+            if (room != null)
+            {
+                room.RemoveEnemy(this); // 调用 Room 类的 RemoveEnemy 方法
+            }
         }
     }
 }
